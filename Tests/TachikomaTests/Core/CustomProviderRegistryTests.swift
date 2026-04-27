@@ -11,7 +11,13 @@ import Glibc
 
 struct CustomProviderRegistryTests {
     @Test
-    func `Loads providers from profile config with comments and env vars`() throws {
+    func `Loads providers from profile config with comments and env vars`() async throws {
+        try await TestEnvironmentMutex.shared.withLock {
+            try self.loadProvidersFromProfileConfig()
+        }
+    }
+
+    private func loadProvidersFromProfileConfig() throws {
         let fm = FileManager.default
         let tempHome = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try fm.createDirectory(at: tempHome, withIntermediateDirectories: true)

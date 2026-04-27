@@ -238,22 +238,30 @@ public func transcribeBatch(
         of: (Int, TranscriptionResult).self,
         returning: [TranscriptionResult].self,
     ) { group in
-        let semaphore = AsyncSemaphore(value: concurrency)
+        let limit = min(max(concurrency, 1), audioURLs.count)
+        var nextIndex = 0
 
-        for (index, url) in audioURLs.indexed() {
+        func submit(_ index: Int) {
+            let url = audioURLs[index]
             group.addTask {
-                await semaphore.wait()
-                defer { Task { await semaphore.signal() } }
-
                 let audio = try AudioData(contentsOf: url)
                 let result = try await transcribe(audio, using: model, language: language, configuration: configuration)
                 return (index, result)
             }
         }
 
+        while nextIndex < limit {
+            submit(nextIndex)
+            nextIndex += 1
+        }
+
         var results: [(Int, TranscriptionResult)] = []
-        for try await result in group {
+        while let result = try await group.next() {
             results.append(result)
+            if nextIndex < audioURLs.count {
+                submit(nextIndex)
+                nextIndex += 1
+            }
         }
 
         // Sort by original index to maintain order
@@ -282,21 +290,29 @@ public func generateSpeechBatch(
     -> [SpeechResult]
 {
     try await withThrowingTaskGroup(of: (Int, SpeechResult).self, returning: [SpeechResult].self) { group in
-        let semaphore = AsyncSemaphore(value: concurrency)
+        let limit = min(max(concurrency, 1), texts.count)
+        var nextIndex = 0
 
-        for (index, text) in texts.indexed() {
+        func submit(_ index: Int) {
+            let text = texts[index]
             group.addTask {
-                await semaphore.wait()
-                defer { Task { await semaphore.signal() } }
-
                 let result = try await generateSpeech(text, using: model, voice: voice, configuration: configuration)
                 return (index, result)
             }
         }
 
+        while nextIndex < limit {
+            submit(nextIndex)
+            nextIndex += 1
+        }
+
         var results: [(Int, SpeechResult)] = []
-        for try await result in group {
+        while let result = try await group.next() {
             results.append(result)
+            if nextIndex < texts.count {
+                submit(nextIndex)
+                nextIndex += 1
+            }
         }
 
         // Sort by original index to maintain order
@@ -378,34 +394,3 @@ public func capabilities(
 }
 
 // MARK: - Helper Types
-
-/// Simple semaphore for controlling concurrency
-@available(macOS 13.0, iOS 16.0, watchOS 9.0, tvOS 16.0, *)
-actor AsyncSemaphore {
-    private var value: Int
-    private var waiters: [CheckedContinuation<Void, Never>] = []
-
-    init(value: Int) {
-        self.value = value
-    }
-
-    func wait() async {
-        if self.value > 0 {
-            self.value -= 1
-            return
-        }
-
-        await withCheckedContinuation { continuation in
-            self.waiters.append(continuation)
-        }
-    }
-
-    func signal() {
-        if self.waiters.isEmpty {
-            self.value += 1
-        } else {
-            let waiter = self.waiters.removeFirst()
-            waiter.resume()
-        }
-    }
-}
