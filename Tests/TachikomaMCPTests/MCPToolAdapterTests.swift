@@ -103,7 +103,7 @@ struct MCPToolAdapterTests {
 
         #expect(response.isError == false)
         #expect(response.content.count == 1)
-        if case let .text(text) = response.content[0] {
+        if case .text(text: let text, annotations: _, _meta: _) = response.content[0] {
             #expect(text == "Hello, world!")
         } else {
             Issue.record("Expected text content")
@@ -116,7 +116,7 @@ struct MCPToolAdapterTests {
 
         #expect(response.isError == true)
         #expect(response.content.count == 1)
-        if case let .text(text) = response.content[0] {
+        if case .text(text: let text, annotations: _, _meta: _) = response.content[0] {
             #expect(text == "Something went wrong")
         } else {
             Issue.record("Expected text content")
@@ -130,7 +130,7 @@ struct MCPToolAdapterTests {
 
         #expect(response.isError == false)
         #expect(response.content.count == 1)
-        if case let .image(data, mimeType, _) = response.content[0] {
+        if case .image(data: let data, mimeType: let mimeType, annotations: _, _meta: _) = response.content[0] {
             #expect(data == imageData.base64EncodedString())
             #expect(mimeType == "image/jpeg")
         } else {

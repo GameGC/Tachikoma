@@ -265,8 +265,8 @@ struct TypeConversionTests {
 
         // Multiple content items
         let multiResponse = ToolResponse.multiContent([
-            .text("Part 1"),
-            .text("Part 2"),
+            .text(text: "Part 1", annotations: nil, _meta: nil),
+            .text(text: "Part 2", annotations: nil, _meta: nil),
         ])
         let multiVal = multiResponse.toAnyAgentToolValue()
         if let elements = multiVal.arrayValue {
@@ -279,7 +279,7 @@ struct TypeConversionTests {
 
         // Image content
         let imageResponse = ToolResponse(content: [
-            .image(data: "base64data", mimeType: "image/png", metadata: nil),
+            .image(data: "base64data", mimeType: "image/png", annotations: nil, _meta: nil),
         ])
         let imageVal = imageResponse.toAnyAgentToolValue()
         if let props = imageVal.objectValue {

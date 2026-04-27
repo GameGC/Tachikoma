@@ -172,7 +172,7 @@ struct MCPClientTests {
         let textResponse = ToolResponse.text("Success")
         #expect(textResponse.content.count == 1)
         #expect(textResponse.isError == false)
-        if case let .text(text) = textResponse.content.first {
+        if case .text(text: let text, annotations: _, _meta: _) = textResponse.content.first {
             #expect(text == "Success")
         } else {
             Issue.record("Expected text content")
@@ -181,7 +181,7 @@ struct MCPClientTests {
         // Error response
         let errorResponse = ToolResponse.error("Failed")
         #expect(errorResponse.isError == true)
-        if case let .text(text) = errorResponse.content.first {
+        if case .text(text: let text, annotations: _, _meta: _) = errorResponse.content.first {
             #expect(text == "Failed")
         } else {
             Issue.record("Expected text content")
@@ -191,7 +191,7 @@ struct MCPClientTests {
         let imageData = Data("test".utf8)
         let imageResponse = ToolResponse.image(data: imageData, mimeType: "image/png")
         #expect(imageResponse.content.count == 1)
-        if case let .image(data, mimeType, _) = imageResponse.content.first {
+        if case .image(data: let data, mimeType: let mimeType, annotations: _, _meta: _) = imageResponse.content.first {
             #expect(data == imageData.base64EncodedString())
             #expect(mimeType == "image/png")
         } else {
@@ -200,8 +200,8 @@ struct MCPClientTests {
 
         // Multi-content response
         let multiResponse = ToolResponse.multiContent([
-            .text("Part 1"),
-            .text("Part 2"),
+            .text(text: "Part 1", annotations: nil, _meta: nil),
+            .text(text: "Part 2", annotations: nil, _meta: nil),
         ])
         #expect(multiResponse.content.count == 2)
     }
@@ -349,7 +349,7 @@ struct MockToolTests {
         let response = try await tool.execute(arguments: args)
 
         #expect(response.isError == false)
-        if case let .text(text) = response.content.first {
+        if case .text(text: let text, annotations: _, _meta: _) = response.content.first {
             #expect(text == "Received: Hello World")
         } else {
             Issue.record("Expected text response")
@@ -364,7 +364,7 @@ struct MockToolTests {
         let response = try await tool.execute(arguments: args)
 
         #expect(response.isError == true)
-        if case let .text(text) = response.content.first {
+        if case .text(text: let text, annotations: _, _meta: _) = response.content.first {
             #expect(text == "Missing required 'message' parameter")
         } else {
             Issue.record("Expected error text")
