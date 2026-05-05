@@ -46,7 +46,8 @@ struct CredentialLoadingTests {
         try await TestEnvironmentMutex.shared.withLock {
             let originalProfileDirectory = TachikomaConfiguration.profileDirectoryName
             let profileDirectory = ".tachikoma-credential-tests-\(UUID().uuidString)"
-            let profilePath = NSString(string: "~/" + profileDirectory).expandingTildeInPath
+            let homeDirectory = try #require(ProcessInfo.processInfo.environment["HOME"])
+            let profilePath = "\(homeDirectory)/\(profileDirectory)"
             let credentialPath = "\(profilePath)/credentials"
             let savedEnvironment = self.unsetOpenAIEnvironment()
 
