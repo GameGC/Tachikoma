@@ -94,12 +94,14 @@ public struct ProviderFactory {
                             modelId: parsed.model,
                             baseURL: custom.baseURL,
                             configuration: configuration,
+                            additionalHeaders: custom.headers,
                         )
                     case .anthropic:
                         return try AnthropicCompatibleProvider(
                             modelId: parsed.model,
                             baseURL: custom.baseURL,
                             configuration: configuration,
+                            additionalHeaders: custom.headers,
                         )
                     }
                 }

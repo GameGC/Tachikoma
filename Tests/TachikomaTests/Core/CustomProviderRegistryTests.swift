@@ -95,6 +95,14 @@ struct CustomProviderRegistryTests {
         #expect(claude.headers.isEmpty)
         #expect(claude.models.isEmpty)
 
+        let dynamicProvider = DynamicCustomProvider(modelId: "weather-ai/fast")
+        let resolved = try ProviderFactory.createProvider(
+            for: .custom(provider: dynamicProvider),
+            configuration: TachikomaConfiguration(loadFromEnvironment: false),
+        )
+        let compatibleProvider = try #require(resolved as? OpenAICompatibleProvider)
+        #expect(compatibleProvider.additionalHeaders["Authorization"] == "Bearer sk-test-weather")
+
         #expect(CustomProviderRegistry.shared.get("missing") == nil)
     }
 
@@ -143,5 +151,26 @@ struct CustomProviderRegistryTests {
         #if os(Windows)
         self.restoreUserProfile(originalUserProfile)
         #endif
+    }
+}
+
+private final class DynamicCustomProvider: ModelProvider {
+    let modelId: String
+    let baseURL: String? = nil
+    let apiKey: String? = nil
+    let capabilities = ModelCapabilities()
+
+    init(modelId: String) {
+        self.modelId = modelId
+    }
+
+    func generateText(request _: ProviderRequest) async throws -> ProviderResponse {
+        ProviderResponse(text: "")
+    }
+
+    func streamText(request _: ProviderRequest) async throws -> AsyncThrowingStream<TextStreamDelta, any Error> {
+        AsyncThrowingStream { continuation in
+            continuation.finish()
+        }
     }
 }

@@ -6,13 +6,20 @@ public final class AnthropicCompatibleProvider: ModelProvider {
     public let modelId: String
     public let baseURL: String?
     public let apiKey: String?
+    public let additionalHeaders: [String: String]
     public let capabilities: ModelCapabilities
     private let configuration: TachikomaConfiguration
 
-    public init(modelId: String, baseURL: String, configuration: TachikomaConfiguration) throws {
+    public init(
+        modelId: String,
+        baseURL: String,
+        configuration: TachikomaConfiguration,
+        additionalHeaders: [String: String] = [:],
+    ) throws {
         self.modelId = modelId
         self.baseURL = baseURL
         self.configuration = configuration
+        self.additionalHeaders = additionalHeaders
 
         // Try to get API key from configuration, otherwise try common environment variable patterns
         if let key = configuration.getAPIKey(for: .custom("anthropic_compatible")) {
@@ -62,6 +69,7 @@ public final class AnthropicCompatibleProvider: ModelProvider {
         return try AnthropicProvider(
             model: .custom(self.modelId),
             configuration: compatConfig,
+            additionalHeaders: self.additionalHeaders,
         )
     }
 }

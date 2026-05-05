@@ -16,16 +16,22 @@ public final class AnthropicProvider: ModelProvider {
     private let model: LanguageModel.Anthropic
     private let auth: TKAuthValue
     private let betaHeader: String
+    private let additionalHeaders: [String: String]
 
     private static let requiredBetaFlags: [String] = [
         "interleaved-thinking-2025-05-14",
         "fine-grained-tool-streaming-2025-05-14",
     ]
 
-    public init(model: LanguageModel.Anthropic, configuration: TachikomaConfiguration) throws {
+    public init(
+        model: LanguageModel.Anthropic,
+        configuration: TachikomaConfiguration,
+        additionalHeaders: [String: String] = [:],
+    ) throws {
         self.model = model
         self.modelId = model.modelId
         self.baseURL = configuration.getBaseURL(for: .anthropic) ?? "https://api.anthropic.com"
+        self.additionalHeaders = additionalHeaders
 
         if let key = configuration.getAPIKey(for: .anthropic) {
             self.auth = .apiKey(key)
@@ -127,6 +133,9 @@ public final class AnthropicProvider: ModelProvider {
         self.applyAuth(to: &urlRequest, secret: apiKey)
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+        for (key, value) in self.additionalHeaders {
+            urlRequest.setValue(value, forHTTPHeaderField: key)
+        }
 
         let requestedThinking = self.anthropicThinking(from: request.settings.providerOptions.anthropic?.thinking)
         var thinking: AnthropicThinking?

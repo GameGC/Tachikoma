@@ -122,6 +122,34 @@ struct OpenAICompatibleHelperTests {
     }
 
     @Test
+    func `OpenAI-compatible provider forwards configured headers`() async throws {
+        let request = ProviderRequest(
+            messages: [ModelMessage(role: .user, content: [.text("ping")])],
+        )
+
+        try await self.withMockedSession { urlRequest in
+            #expect(urlRequest.value(forHTTPHeaderField: "client_id") == "proxy-client")
+            #expect(urlRequest.value(forHTTPHeaderField: "client_secret") == "proxy-secret")
+            return self.jsonResponse(for: urlRequest, data: Self.chatCompletionPayload(text: "pong"))
+        } operation: { session in
+            let configuration = TachikomaConfiguration(apiKeys: ["openai_compatible": "sk-test"])
+            let provider = try OpenAICompatibleProvider(
+                modelId: "compatible-model",
+                baseURL: "https://mock.compatible",
+                configuration: configuration,
+                additionalHeaders: [
+                    "client_id": "proxy-client",
+                    "client_secret": "proxy-secret",
+                ],
+                session: session,
+            )
+
+            let response = try await provider.generateText(request: request)
+            #expect(response.text == "pong")
+        }
+    }
+
+    @Test
     func `non-200 responses surface TachikomaError.apiError`() async {
         await self.withMockedSession { urlRequest in
             let errorJSON = """

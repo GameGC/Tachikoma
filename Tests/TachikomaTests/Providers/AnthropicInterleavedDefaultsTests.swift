@@ -71,6 +71,24 @@ struct AnthropicInterleavedDefaultsTests {
     }
 
     @Test
+    func `Provider includes additional proxy headers`() throws {
+        let config = TachikomaConfiguration(apiKeys: ["anthropic": "test-key"])
+        let provider = try AnthropicProvider(
+            model: .opus45,
+            configuration: config,
+            additionalHeaders: [
+                "client_id": "proxy-client",
+                "client_secret": "proxy-secret",
+            ],
+        )
+
+        let request = ProviderRequest(messages: [.user("hi")])
+        let urlRequest = try provider.makeURLRequest(for: request, stream: false)
+        #expect(urlRequest.value(forHTTPHeaderField: "client_id") == "proxy-client")
+        #expect(urlRequest.value(forHTTPHeaderField: "client_secret") == "proxy-secret")
+    }
+
+    @Test
     func `Stream delta decodes thinking_delta payload`() throws {
         let data = try #require("{\"type\":\"thinking_delta\",\"thinking\":\"ok\"}".data(using: .utf8))
         let delta = try JSONDecoder().decode(AnthropicStreamDelta.self, from: data)
