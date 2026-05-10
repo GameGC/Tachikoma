@@ -60,26 +60,25 @@ Add to your shell profile (`~/.zshrc`, `~/.bashrc`) for persistence.
 ## Supported Models
 
 ### OpenAI
-- **GPT-5 Series**: `gpt-5.5`, `gpt-5.2`, `gpt-5.1`, `gpt-5`, `gpt-5-mini`, `gpt-5-nano`
+- **GPT-5 Series**: `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`, `gpt-5`, `gpt-5-mini`, `gpt-5-nano`
 
 ### Anthropic
-- **Claude 4**: `claude-opus-4-1-20250805`, `claude-sonnet-4-20250514`
-- **Claude 4.x**: `claude-opus-4-7`, `claude-sonnet-4.5`, `claude-haiku-4.5`
+- **Claude 4.x**: `claude-opus-4-7`, `claude-opus-4-5`, `claude-opus-4-1-20250805`, `claude-sonnet-4-6`, `claude-sonnet-4-5-20250929`, `claude-haiku-4-5`
 
 ### Google
-- **Gemini 2.5**: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`
+- **Gemini**: `gemini-3.1-pro-preview`, `gemini-3.1-flash-lite`, `gemini-3-flash-preview`, `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`
 
 ### Others
-- **Mistral**: `mistral-large-2`, `mistral-small`, `codestral`
-- **Groq**: `llama-3.1-70b`, `llama-3.1-8b`, `mixtral-8x7b`
-* **Grok**: `grok-4-0709`, `grok-4-fast-reasoning`, `grok-4-fast-non-reasoning`, `grok-code-fast-1`, `grok-3`, `grok-3-mini`, `grok-2-1212`, `grok-2-vision-1212`, `grok-2-image-1212`
-- **Ollama** (local): `llama3.3`, `llava`, `codellama`, any installed model
+- **Mistral**: `mistral-large-latest`, `mistral-medium-latest`, `mistral-medium-3-5`, `mistral-small-latest`, `open-mistral-nemo-2407`, `codestral-latest`
+- **Groq**: `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `llama-3.3-70b-versatile`, `llama-3.1-8b-instant`
+- **Grok**: `grok-4.3`, `grok-4.20-multi-agent-0309`, `grok-4.20-0309-reasoning`, `grok-4.20-0309-non-reasoning`
+- **Ollama** (local): `llama3.3`, `llava`, any installed model
 
 ### Model Shortcuts
-- `claude` → claude-opus-4-1-20250805
+- `claude` → claude-opus-4-7
 - `gpt` → gpt-5.5
-- `gemini` → gemini-2.5-flash
-- `grok` → grok-4-fast-reasoning
+- `gemini` → gemini-3.1-pro-preview
+- `grok` → grok-4.3
 - `llama` → llama3.3
 
 ## Examples
@@ -94,7 +93,7 @@ ai-cli --stream --model gpt-5 "Explain the theory of relativity"
 
 # API selection for OpenAI
 ai-cli --model gpt-5 --api chat "Use Chat Completions API"
-ai-cli --model gpt-5-thinking --api responses "Use Responses API"
+ai-cli --model gpt-5.5 --api responses "Use Responses API"
 
 # Debug mode
 ai-cli --verbose --model opus "Debug this request"

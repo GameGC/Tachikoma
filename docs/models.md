@@ -4,51 +4,50 @@ Tachikoma ships with a built-in model catalog (`CaseIterable` enums) plus suppor
 
 ## Default
 
-- `LanguageModel.default`: `claude-opus-4-5`
+- `LanguageModel.default`: `claude-opus-4-7`
 
 ## OpenAI (`LanguageModel.OpenAI`)
 
 - `gpt-5.5`
-- `gpt-5.2`, `gpt-5.1`
+- `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.4-nano`
 - `gpt-5`, `gpt-5-pro`, `gpt-5-mini`, `gpt-5-nano`
-- `gpt-5-thinking`, `gpt-5-thinking-mini`, `gpt-5-thinking-nano`
-- `gpt-5-chat-latest`
 
 Notes:
-- Mini/Nano variants exist only for **GPT‑5** (not for GPT‑5.1 / GPT‑5.2).
+- Older `gpt-5.1`, `gpt-5.2`, `gpt-5-thinking*`, and `gpt-5-chat-latest` ids are not first-class catalog entries.
 
 ## Anthropic (`LanguageModel.Anthropic`)
 
+- `claude-opus-4-7`
 - `claude-opus-4-5`
-- `claude-opus-4-1-20250805`, `claude-opus-4-1-20250805-thinking`
-- `claude-sonnet-4-20250514`, `claude-sonnet-4-20250514-thinking`
+- `claude-opus-4-1-20250805`
+- `claude-sonnet-4-6`
 - `claude-sonnet-4-5-20250929`
-- `claude-haiku-4.5`
+- `claude-haiku-4-5`
 
 ## Google (`LanguageModel.Google`)
 
+- `gemini-3.1-pro-preview`
+- `gemini-3.1-flash-lite`
 - `gemini-3-flash` (API id currently maps to `gemini-3-flash-preview`)
 - `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`
 
 ## xAI Grok (`LanguageModel.Grok`)
 
-- `grok-4-0709`
-- `grok-4-fast-reasoning`, `grok-4-fast-non-reasoning`
-- `grok-code-fast-1`
-- `grok-3`, `grok-3-mini`
-- `grok-2-1212`, `grok-2-vision-1212`, `grok-2-image-1212`
-- `grok-vision-beta`, `grok-beta`
+- `grok-4.3`
+- `grok-4.20-multi-agent-0309`
+- `grok-4.20-0309-reasoning`, `grok-4.20-0309-non-reasoning`
 
 ## Mistral (`LanguageModel.Mistral`)
 
-- `mistral-large-2`, `mistral-large`, `mistral-medium`, `mistral-small`, `mistral-nemo`, `codestral`
+- `mistral-large-latest`, `mistral-medium-latest`, `mistral-medium-3-5`
+- `mistral-small-latest`, `open-mistral-nemo-2407`, `codestral-latest`
 
 ## Groq (`LanguageModel.Groq`)
 
-- `llama-3.1-70b`, `llama-3.1-8b`
-- `llama-3-70b`, `llama-3-8b`
-- `mixtral-8x7b`
-- `gemma2-9b`
+- `openai/gpt-oss-120b`, `openai/gpt-oss-20b`
+- `llama-3.3-70b-versatile`, `llama-3.1-8b-instant`
+- `meta-llama/llama-4-maverick-17b-128e-instruct`
+- `meta-llama/llama-4-scout-17b-16e-instruct`
 
 ## Local (`LanguageModel.Ollama`, `LanguageModel.LMStudio`)
 

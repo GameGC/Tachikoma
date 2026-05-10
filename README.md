@@ -39,7 +39,7 @@ print(text)
 ```swift
 import Tachikoma
 
-let stream = try await stream("Explain actors in Swift.", using: .openai(.gpt52))
+let stream = try await stream("Explain actors in Swift.", using: .openai(.gpt54))
 for try await delta in stream {
     print(delta.content ?? "", terminator: "")
 }
@@ -64,7 +64,7 @@ import Tachikoma
 
 let pngData: Data = /* ... */
 let image = ImageInput(data: pngData, mimeType: "image/png")
-let answer = try await analyze(image: image, prompt: "What’s in this image?", using: .openai(.gpt4o))
+let answer = try await analyze(image: image, prompt: "What’s in this image?", using: .openai(.gpt55))
 print(answer)
 ```
 
@@ -87,7 +87,7 @@ let tool = createTool(
 }
 
 let result = try await generateText(
-    model: .openai(.gpt52),
+    model: .openai(.gpt54),
     messages: [.user("Compute 123 + 456 using the add tool.")],
     tools: [tool],
     maxSteps: 3
@@ -99,9 +99,9 @@ print(result.text)
 
 Common picks:
 - Anthropic: `claude-opus-4-5` (`LanguageModel.default`)
-- OpenAI: `gpt-5.5` (flagship), `gpt-5` (coding/agents), `gpt-5-thinking` (reasoning)
-- Google: `gemini-3-flash`
-- Grok: `grok-4-fast-reasoning`
+- OpenAI: `gpt-5.5` (flagship), `gpt-5.4` / `gpt-5.4-mini` / `gpt-5.4-nano`, `gpt-5`
+- Google: `gemini-3.1-pro-preview`, `gemini-3-flash`
+- Grok: `grok-4.3`
 - Local: `ollama/llama3.3`
 
 Full catalog (including enum case names + provider notes): [`docs/models.md`](docs/models.md).

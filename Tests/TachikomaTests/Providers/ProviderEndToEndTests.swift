@@ -74,7 +74,7 @@ struct ProviderEndToEndTests {
             let config = Self.makeConfiguration { config in
                 config.setAPIKey("live-anthropic", for: .anthropic)
             }
-            let provider = try AnthropicProvider(model: .sonnet4, configuration: config)
+            let provider = try AnthropicProvider(model: .sonnet46, configuration: config)
             let response = try await provider.generateText(request: Self.basicRequest)
             #expect(response.text == "Claude says hello")
         }
@@ -149,17 +149,17 @@ struct ProviderEndToEndTests {
 
     @Test
     func `Mistral provider uses OpenAI-compatible flow`() async throws {
-        try await self.assertOpenAICompatibleProvider(.mistral(.small), provider: .mistral)
+        try await self.assertOpenAICompatibleProvider(.mistral(.smallLatest), provider: .mistral)
     }
 
     @Test
     func `Groq provider uses OpenAI-compatible flow`() async throws {
-        try await self.assertOpenAICompatibleProvider(.groq(.llama38b), provider: .groq)
+        try await self.assertOpenAICompatibleProvider(.groq(.llama318b), provider: .groq)
     }
 
     @Test
     func `Grok provider uses OpenAI-compatible flow`() async throws {
-        try await self.assertOpenAICompatibleProvider(.grok(.grok4FastReasoning), provider: .grok)
+        try await self.assertOpenAICompatibleProvider(.grok(.grok43), provider: .grok)
     }
 
     @Test
@@ -435,7 +435,7 @@ struct ProviderEndToEndTests {
             "content": [
                 ["type": "text", "text": text],
             ],
-            "model": "claude-sonnet-4-20250514",
+            "model": "claude-sonnet-4-6",
             "stop_reason": "end_turn",
             "usage": [
                 "input_tokens": 12,

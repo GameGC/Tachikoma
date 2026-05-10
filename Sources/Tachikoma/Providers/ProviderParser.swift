@@ -207,7 +207,11 @@ public enum ProviderParser {
         guard
             !normalized.hasPrefix("gpt-4"), !compact.hasPrefix("gpt4"),
             !normalized.hasPrefix("gpt-3"), !compact.hasPrefix("gpt3"),
-            !normalized.hasPrefix("o3"), !normalized.hasPrefix("o4")
+            !normalized.hasPrefix("o3"), !normalized.hasPrefix("o4"),
+            !normalized.hasPrefix("gpt-5.1"), !compact.hasPrefix("gpt51"),
+            !normalized.hasPrefix("gpt-5.2"), !compact.hasPrefix("gpt52"),
+            !normalized.contains("gpt-5-thinking"), !compact.contains("gpt5thinking"),
+            normalized != "gpt-5-chat-latest", compact != "gpt5chatlatest"
         else {
             return nil
         }
@@ -218,24 +222,15 @@ public enum ProviderParser {
             .openai(.gpt5Mini)
         case "gpt-5.5-nano", "gpt5.5-nano", "gpt-5-5-nano", "gpt5-5-nano", "gpt55-nano", "gpt55nano":
             .openai(.gpt5Nano)
-        case "gpt-5.2", "gpt5.2", "gpt-5-2", "gpt5-2", "gpt52": .openai(.gpt52)
-        case "gpt-5.2-mini", "gpt5.2-mini", "gpt-5-2-mini", "gpt5-2-mini", "gpt52-mini", "gpt52mini":
-            .openai(.gpt5Mini)
-        case "gpt-5.2-nano", "gpt5.2-nano", "gpt-5-2-nano", "gpt5-2-nano", "gpt52-nano", "gpt52nano":
-            .openai(.gpt5Nano)
-        case "gpt-5.1", "gpt5.1", "gpt-5-1", "gpt5-1", "gpt51": .openai(.gpt51)
-        case "gpt-5.1-mini", "gpt5.1-mini", "gpt-5-1-mini", "gpt5-1-mini", "gpt51-mini", "gpt51mini":
-            .openai(.gpt5Mini)
-        case "gpt-5.1-nano", "gpt5.1-nano", "gpt-5-1-nano", "gpt5-1-nano", "gpt51-nano", "gpt51nano":
-            .openai(.gpt5Nano)
+        case "gpt-5.4", "gpt5.4", "gpt-5-4", "gpt5-4", "gpt54": .openai(.gpt54)
+        case "gpt-5.4-mini", "gpt5.4-mini", "gpt-5-4-mini", "gpt5-4-mini", "gpt54-mini", "gpt54mini":
+            .openai(.gpt54Mini)
+        case "gpt-5.4-nano", "gpt5.4-nano", "gpt-5-4-nano", "gpt5-4-nano", "gpt54-nano", "gpt54nano":
+            .openai(.gpt54Nano)
         case "gpt-5", "gpt5": .openai(.gpt5)
         case "gpt-5-pro", "gpt5-pro", "gpt5pro": .openai(.gpt5Pro)
         case "gpt-5-mini", "gpt5-mini", "gpt5mini": .openai(.gpt5Mini)
         case "gpt-5-nano", "gpt5-nano", "gpt5nano": .openai(.gpt5Nano)
-        case "gpt-5-thinking", "gpt5-thinking", "gpt5thinking": .openai(.gpt5Thinking)
-        case "gpt-5-thinking-mini", "gpt5-thinking-mini", "gpt5thinkingmini": .openai(.gpt5ThinkingMini)
-        case "gpt-5-thinking-nano", "gpt5-thinking-nano", "gpt5thinkingnano": .openai(.gpt5ThinkingNano)
-        case "gpt-5-chat-latest", "gpt5-chat-latest": .openai(.gpt5ChatLatest)
         default:
             // Handle custom/fine-tuned models
             .openai(.custom(modelString))
@@ -245,7 +240,11 @@ public enum ProviderParser {
     private static func parseAnthropicModel(_ modelString: String) -> LanguageModel? {
         let normalized = modelString.lowercased()
         let compact = normalized.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")
-        guard !normalized.hasPrefix("claude-3"), !compact.hasPrefix("claude3") else {
+        guard !normalized.hasPrefix("claude-3"), !compact.hasPrefix("claude3"),
+              normalized != "claude-opus-4-20250514",
+              normalized != "claude-sonnet-4-20250514",
+              !normalized.contains("-thinking")
+        else {
             return nil
         }
 
@@ -254,12 +253,13 @@ public enum ProviderParser {
             .anthropic(.opus47)
         case "claude-opus-4-5", "claude-opus-4.5", "claude-opus-4-5-latest", "opus-4-5", "opus-4.5", "opus45":
             .anthropic(.opus45)
-        case "claude-opus-4-1-20250805", "claude-opus-4-20250514", "claude-opus-4", "opus-4": .anthropic(.opus4)
-        case "claude-opus-4-1-20250805-thinking", "claude-opus-4-20250514-thinking", "claude-opus-4-thinking",
-             "opus-4-thinking": .anthropic(.opus4Thinking)
-        case "claude-sonnet-4-20250514", "claude-sonnet-4", "sonnet-4": .anthropic(.sonnet4)
-        case "claude-sonnet-4-20250514-thinking", "claude-sonnet-4-thinking",
-             "sonnet-4-thinking": .anthropic(.sonnet4Thinking)
+        case "claude-opus-4-1-20250805", "claude-opus-4", "opus-4": .anthropic(.opus4)
+        case "claude-sonnet-4-6", "claude-sonnet-4.6", "sonnet-4-6", "sonnet-4.6", "sonnet46":
+            .anthropic(.sonnet46)
+        case "claude-sonnet-4-5-20250929", "claude-sonnet-4.5", "sonnet-4-5", "sonnet-4.5", "sonnet45":
+            .anthropic(.sonnet45)
+        case "claude-haiku-4-5-20251001", "claude-haiku-4-5", "claude-haiku-4.5", "haiku-4-5", "haiku45":
+            .anthropic(.haiku45)
         default:
             // Handle custom models
             .anthropic(.custom(modelString))
@@ -268,6 +268,10 @@ public enum ProviderParser {
 
     private static func parseGoogleModel(_ modelString: String) -> LanguageModel? {
         switch modelString.lowercased() {
+        case "gemini-3.1-pro-preview", "gemini-3.1-pro", "gemini31pro", "gemini31propreview":
+            .google(.gemini31ProPreview)
+        case "gemini-3.1-flash-lite", "gemini31flashlite", "gemini-3.1-flashlite":
+            .google(.gemini31FlashLite)
         case "gemini-3-flash", "gemini-3-flash-preview", "gemini3flash", "gemini-3flash":
             .google(.gemini3Flash)
         case "gemini-2.5-pro", "gemini25pro", "gemini2.5pro":
@@ -277,7 +281,7 @@ public enum ProviderParser {
         case "gemini-2.5-flash-lite", "gemini25flashlite", "gemini-2.5-flashlite":
             .google(.gemini25FlashLite)
         case "gemini":
-            .google(.gemini3Flash)
+            .google(.gemini31ProPreview)
         default:
             nil
         }
@@ -285,20 +289,31 @@ public enum ProviderParser {
 
     private static func parseGrokModel(_ modelString: String) -> LanguageModel? {
         switch modelString.lowercased() {
-        case "grok-4-0709": .grok(.grok4)
-        case "grok-4-fast-reasoning": .grok(.grok4FastReasoning)
-        case "grok-4-fast-non-reasoning": .grok(.grok4FastNonReasoning)
-        case "grok-code-fast-1": .grok(.grokCodeFast1)
-        case "grok-3", "grok3": .grok(.grok3)
-        case "grok-3-mini": .grok(.grok3Mini)
-        case "grok-2-1212": .grok(.grok2)
-        case "grok-2-vision-1212": .grok(.grok2Vision)
-        case "grok-2-image-1212": .grok(.grok2Image)
-        case "grok-vision-beta": .grok(.grokVisionBeta)
-        case "grok-beta": .grok(.grokBeta)
+        case "grok-4.3", "grok-4-3", "grok43", "grok-latest":
+            return .grok(.grok43)
+        case "grok-4.20-multi-agent-0309", "grok-4-20-multi-agent-0309":
+            return .grok(.grok420MultiAgent)
+        case "grok-4.20-0309-reasoning", "grok-4-20-0309-reasoning":
+            return .grok(.grok420Reasoning)
+        case "grok-4.20-0309-non-reasoning", "grok-4-20-0309-non-reasoning":
+            return .grok(.grok420NonReasoning)
         default:
-            .grok(.custom(modelString))
+            if self.isUnsupportedLegacyGrokModel(modelString) {
+                return nil
+            }
+            return .grok(.custom(modelString))
         }
+    }
+
+    private static func isUnsupportedLegacyGrokModel(_ modelString: String) -> Bool {
+        let normalized = modelString.lowercased()
+        return normalized.hasPrefix("grok-2") ||
+            normalized.hasPrefix("grok-3") ||
+            normalized == "grok-4-0709" ||
+            normalized.hasPrefix("grok-4-fast") ||
+            normalized.hasPrefix("grok-code-fast") ||
+            normalized.contains("grok-beta") ||
+            normalized.contains("grok-vision-beta")
     }
 
     private static func parseOllamaModel(_ modelString: String) -> LanguageModel? {
@@ -316,7 +331,6 @@ public enum ProviderParser {
         case "llava:34b": .ollama(.custom("llava:34b"))
         case "mistral-nemo", "mistral-nemo:latest": .ollama(.mistralNemo)
         case "qwen2.5", "qwen2.5:latest": .ollama(.qwen25)
-        case "codellama", "codellama:latest": .ollama(.codellama)
         default:
             .ollama(.custom(modelString))
         }
@@ -331,11 +345,11 @@ public enum ProviderParser {
         -> LanguageModel
     {
         if hasAnthropic {
-            .anthropic(.opus4)
+            .anthropic(.opus47)
         } else if hasOpenAI {
-            .openai(.gpt5Mini)
+            .openai(.gpt55)
         } else if hasGrok {
-            .grok(.grok4FastReasoning)
+            .grok(.grok43)
         } else {
             .ollama(.llama33)
         }

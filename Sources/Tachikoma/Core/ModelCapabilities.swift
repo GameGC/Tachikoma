@@ -238,16 +238,13 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
         )
 
         self.capabilities["openai:gpt-5.5"] = gpt5Capabilities
-        self.capabilities["openai:gpt-5.1"] = gpt5Capabilities
-        self.capabilities["openai:gpt-5.2"] = gpt5Capabilities
+        self.capabilities["openai:gpt-5.4"] = gpt5Capabilities
+        self.capabilities["openai:gpt-5.4-mini"] = gpt5Capabilities
+        self.capabilities["openai:gpt-5.4-nano"] = gpt5Capabilities
         self.capabilities["openai:gpt-5"] = gpt5Capabilities
         self.capabilities["openai:gpt-5-pro"] = gpt5Capabilities
         self.capabilities["openai:gpt-5-mini"] = gpt5Capabilities
         self.capabilities["openai:gpt-5-nano"] = gpt5Capabilities
-        self.capabilities["openai:gpt-5-thinking"] = gpt5Capabilities
-        self.capabilities["openai:gpt-5-thinking-mini"] = gpt5Capabilities
-        self.capabilities["openai:gpt-5-thinking-nano"] = gpt5Capabilities
-        self.capabilities["openai:gpt-5-chat-latest"] = gpt5Capabilities
 
         // Claude 4 models with thinking
         let claude4Capabilities = ModelParameterCapabilities(
@@ -260,9 +257,9 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
         self.capabilities["anthropic:claude-opus-4-7"] = claude4Capabilities
         self.capabilities["anthropic:claude-opus-4-5"] = claude4Capabilities
         self.capabilities["anthropic:claude-opus-4-1-20250805"] = claude4Capabilities
-        self.capabilities["anthropic:claude-sonnet-4-20250514"] = claude4Capabilities
+        self.capabilities["anthropic:claude-sonnet-4-6"] = claude4Capabilities
         self.capabilities["anthropic:claude-sonnet-4-5-20250929"] = claude4Capabilities
-        self.capabilities["anthropic:claude-haiku-4.5"] = claude4Capabilities
+        self.capabilities["anthropic:claude-haiku-4-5"] = claude4Capabilities
 
         // Google Gemini with thinking
         let geminiCapabilities = ModelParameterCapabilities(
@@ -273,6 +270,8 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
             ),
         )
 
+        self.capabilities["google:gemini-3.1-pro-preview"] = geminiCapabilities
+        self.capabilities["google:gemini-3.1-flash-lite"] = geminiCapabilities
         self.capabilities["google:gemini-2.5-pro"] = geminiCapabilities
         self.capabilities["google:gemini-2.5-flash"] = geminiCapabilities
         self.capabilities["google:gemini-2.5-flash-lite"] = geminiCapabilities
@@ -286,8 +285,12 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
             ),
         )
 
-        self.capabilities["mistral:mistral-large-2"] = mistralCapabilities
-        self.capabilities["mistral:codestral"] = mistralCapabilities
+        self.capabilities["mistral:mistral-large-latest"] = mistralCapabilities
+        self.capabilities["mistral:mistral-medium-latest"] = mistralCapabilities
+        self.capabilities["mistral:mistral-medium-3-5"] = mistralCapabilities
+        self.capabilities["mistral:mistral-small-latest"] = mistralCapabilities
+        self.capabilities["mistral:open-mistral-nemo-2407"] = mistralCapabilities
+        self.capabilities["mistral:codestral-latest"] = mistralCapabilities
 
         // Groq models (ultra-fast inference)
         let groqCapabilities = ModelParameterCapabilities(
@@ -296,12 +299,12 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
             ),
         )
 
-        self.capabilities["groq:llama-3.1-70b"] = groqCapabilities
-        self.capabilities["groq:llama-3.1-8b"] = groqCapabilities
-        self.capabilities["groq:llama-3-70b"] = groqCapabilities
-        self.capabilities["groq:llama-3-8b"] = groqCapabilities
-        self.capabilities["groq:mixtral-8x7b"] = groqCapabilities
-        self.capabilities["groq:gemma2-9b"] = groqCapabilities
+        self.capabilities["groq:openai/gpt-oss-120b"] = groqCapabilities
+        self.capabilities["groq:openai/gpt-oss-20b"] = groqCapabilities
+        self.capabilities["groq:llama-3.3-70b-versatile"] = groqCapabilities
+        self.capabilities["groq:llama-3.1-8b-instant"] = groqCapabilities
+        self.capabilities["groq:meta-llama/llama-4-maverick-17b-128e-instruct"] = groqCapabilities
+        self.capabilities["groq:meta-llama/llama-4-scout-17b-16e-instruct"] = groqCapabilities
 
         // Grok models
         let grokCapabilities = ModelParameterCapabilities(
@@ -311,17 +314,10 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
             ),
         )
 
-        self.capabilities["grok:grok-4-0709"] = grokCapabilities
-        self.capabilities["grok:grok-4-fast-reasoning"] = grokCapabilities
-        self.capabilities["grok:grok-4-fast-non-reasoning"] = grokCapabilities
-        self.capabilities["grok:grok-code-fast-1"] = grokCapabilities
-        self.capabilities["grok:grok-3"] = grokCapabilities
-        self.capabilities["grok:grok-3-mini"] = grokCapabilities
-        self.capabilities["grok:grok-2-1212"] = grokCapabilities
-        self.capabilities["grok:grok-2-vision-1212"] = grokCapabilities
-        self.capabilities["grok:grok-2-image-1212"] = grokCapabilities
-        self.capabilities["grok:grok-vision-beta"] = grokCapabilities
-        self.capabilities["grok:grok-beta"] = grokCapabilities
+        self.capabilities["grok:grok-4.3"] = grokCapabilities
+        self.capabilities["grok:grok-4.20-multi-agent-0309"] = grokCapabilities
+        self.capabilities["grok:grok-4.20-0309-reasoning"] = grokCapabilities
+        self.capabilities["grok:grok-4.20-0309-non-reasoning"] = grokCapabilities
     }
 
     private func defaultCapabilities(for model: LanguageModel) -> ModelParameterCapabilities {

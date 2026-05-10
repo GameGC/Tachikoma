@@ -921,27 +921,19 @@ public final class OpenAIResponsesProvider: ModelProvider {
     }
 
     private static func isReasoningModel(_ model: LanguageModel.OpenAI) -> Bool {
-        switch model {
-        case .gpt5Thinking, .gpt5ThinkingMini, .gpt5ThinkingNano:
-            true
-        default:
-            false
-        }
+        false
     }
 
     private static func isGPT5Model(_ model: LanguageModel.OpenAI) -> Bool {
         switch model {
         case .gpt55,
-             .gpt52,
-             .gpt51,
+             .gpt54,
+             .gpt54Mini,
+             .gpt54Nano,
              .gpt5,
              .gpt5Pro,
              .gpt5Mini,
-             .gpt5Nano,
-             .gpt5Thinking,
-             .gpt5ThinkingMini,
-             .gpt5ThinkingNano,
-             .gpt5ChatLatest:
+             .gpt5Nano:
             true
         default:
             false

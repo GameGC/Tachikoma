@@ -34,21 +34,16 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         /// GPT-5.5 Series
         case gpt55 // Flagship GPT-5.5
 
-        /// GPT-5.2 Series
-        case gpt52 // Flagship GPT-5.2
-
-        /// GPT-5.1 Series (November 2025)
-        case gpt51 // Flagship GPT-5.1
+        /// GPT-5.4 Series
+        case gpt54
+        case gpt54Mini
+        case gpt54Nano
 
         // GPT-5 Series (August 2025)
         case gpt5 // Best for coding and agentic tasks
         case gpt5Pro // Higher reasoning budget
         case gpt5Mini // Cost-optimized
         case gpt5Nano // Ultra-low latency
-        case gpt5Thinking // Extended reasoning traces
-        case gpt5ThinkingMini
-        case gpt5ThinkingNano
-        case gpt5ChatLatest // Non-reasoning default chat deployment
 
         /// Fine-tuned models
         case custom(String)
@@ -56,16 +51,13 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public static var allCases: [OpenAI] {
             [
                 .gpt55,
-                .gpt52,
-                .gpt51,
+                .gpt54,
+                .gpt54Mini,
+                .gpt54Nano,
                 .gpt5,
                 .gpt5Pro,
                 .gpt5Mini,
                 .gpt5Nano,
-                .gpt5Thinking,
-                .gpt5ThinkingMini,
-                .gpt5ThinkingNano,
-                .gpt5ChatLatest,
             ]
         }
 
@@ -73,26 +65,21 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
             switch self {
             case let .custom(id): id
             case .gpt55: "gpt-5.5"
-            case .gpt52: "gpt-5.2"
-            case .gpt51: "gpt-5.1"
+            case .gpt54: "gpt-5.4"
+            case .gpt54Mini: "gpt-5.4-mini"
+            case .gpt54Nano: "gpt-5.4-nano"
             case .gpt5: "gpt-5"
             case .gpt5Pro: "gpt-5-pro"
             case .gpt5Mini: "gpt-5-mini"
             case .gpt5Nano: "gpt-5-nano"
-            case .gpt5Thinking: "gpt-5-thinking"
-            case .gpt5ThinkingMini: "gpt-5-thinking-mini"
-            case .gpt5ThinkingNano: "gpt-5-thinking-nano"
-            case .gpt5ChatLatest: "gpt-5-chat-latest"
             }
         }
 
         public var supportsVision: Bool {
             switch self {
             case .gpt55,
-                 .gpt52,
-                 .gpt51,
-                 .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano, .gpt5Thinking, .gpt5ThinkingMini, .gpt5ThinkingNano,
-                 .gpt5ChatLatest: true // GPT-5+ supports multimodal
+                 .gpt54, .gpt54Mini, .gpt54Nano,
+                 .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano: true // GPT-5+ supports multimodal
             default: false
             }
         }
@@ -100,10 +87,8 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public var supportsTools: Bool {
             switch self {
             case .gpt55,
-                 .gpt52,
-                 .gpt51,
-                 .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano, .gpt5Thinking, .gpt5ThinkingMini, .gpt5ThinkingNano,
-                 .gpt5ChatLatest: true // GPT-5+ excels at tool calling
+                 .gpt54, .gpt54Mini, .gpt54Nano,
+                 .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano: true // GPT-5+ excels at tool calling
             case .custom: true // Assume custom models support tools
             }
         }
@@ -111,10 +96,8 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public var supportsAudioInput: Bool {
             switch self {
             case .gpt55,
-                 .gpt52,
-                 .gpt51,
-                 .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano, .gpt5Thinking, .gpt5ThinkingMini, .gpt5ThinkingNano,
-                 .gpt5ChatLatest: true // GPT-5+ is fully multimodal
+                 .gpt54, .gpt54Mini, .gpt54Nano,
+                 .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano: true // GPT-5+ is fully multimodal
             default: false
             }
         }
@@ -136,10 +119,8 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public var contextLength: Int {
             switch self {
             case .gpt55,
-                 .gpt52,
-                 .gpt51,
-                 .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano, .gpt5Thinking, .gpt5ThinkingMini, .gpt5ThinkingNano,
-                 .gpt5ChatLatest: 400_000 // 272k input + 128k output
+                 .gpt54, .gpt54Mini, .gpt54Nano,
+                 .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano: 400_000 // 272k input + 128k output
             case .custom: 128_000 // Default assumption
             }
         }
@@ -150,7 +131,11 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
                 .replacingOccurrences(of: ".", with: "")
             return normalized.hasPrefix("gpt-4") || compact.hasPrefix("gpt4") ||
                 normalized.hasPrefix("gpt-3") || compact.hasPrefix("gpt3") ||
-                normalized.hasPrefix("o3") || normalized.hasPrefix("o4")
+                normalized.hasPrefix("o3") || normalized.hasPrefix("o4") ||
+                normalized.hasPrefix("gpt-5.1") || compact.hasPrefix("gpt51") ||
+                normalized.hasPrefix("gpt-5.2") || compact.hasPrefix("gpt52") ||
+                normalized.contains("gpt-5-thinking") || compact.contains("gpt5thinking") ||
+                normalized == "gpt-5-chat-latest" || compact == "gpt5chatlatest"
         }
     }
 
@@ -159,9 +144,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         case opus47
         case opus45
         case opus4
-        case opus4Thinking
-        case sonnet4
-        case sonnet4Thinking
+        case sonnet46
         case sonnet45
         case haiku45
 
@@ -173,9 +156,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
                 .opus47,
                 .opus45,
                 .opus4,
-                .opus4Thinking,
-                .sonnet4,
-                .sonnet4Thinking,
+                .sonnet46,
                 .sonnet45,
                 .haiku45,
             ]
@@ -187,17 +168,15 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
             case .opus47: "claude-opus-4-7"
             case .opus45: "claude-opus-4-5"
             case .opus4: "claude-opus-4-1-20250805"
-            case .opus4Thinking: "claude-opus-4-1-20250805-thinking"
-            case .sonnet4: "claude-sonnet-4-20250514"
-            case .sonnet4Thinking: "claude-sonnet-4-20250514-thinking"
+            case .sonnet46: "claude-sonnet-4-6"
             case .sonnet45: "claude-sonnet-4-5-20250929"
-            case .haiku45: "claude-haiku-4.5"
+            case .haiku45: "claude-haiku-4-5"
             }
         }
 
         public var supportsVision: Bool {
             switch self {
-            case .opus47, .opus45, .opus4, .opus4Thinking, .sonnet4, .sonnet4Thinking, .sonnet45, .haiku45:
+            case .opus47, .opus45, .opus4, .sonnet46, .sonnet45, .haiku45:
                 true
             case .custom: true // Assume custom models support vision
             }
@@ -219,14 +198,17 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var contextLength: Int {
             switch self {
-            case .opus47: 1_000_000
-            case .opus45, .opus4, .opus4Thinking, .sonnet4, .sonnet4Thinking, .sonnet45, .haiku45: 500_000
+            case .opus47, .sonnet46: 1_000_000
+            case .haiku45: 200_000
+            case .opus45, .opus4, .sonnet45: 500_000
             case .custom: 200_000 // Default assumption
             }
         }
     }
 
     public enum Google: String, Sendable, Hashable, CaseIterable {
+        case gemini31ProPreview = "gemini-3.1-pro-preview"
+        case gemini31FlashLite = "gemini-3.1-flash-lite"
         // NOTE: As of 2025-12-17, ListModels exposes Gemini 3 Flash as `gemini-3-flash-preview` on v1beta.
         // We keep the user-facing identifier as `gemini-3-flash` and map it to the preview model id for API calls.
         case gemini3Flash = "gemini-3-flash-preview"
@@ -242,6 +224,10 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
             switch self {
             case .gemini3Flash:
                 "gemini-3-flash"
+            case .gemini31ProPreview:
+                "gemini-3.1-pro-preview"
+            case .gemini31FlashLite:
+                "gemini-3.1-flash-lite"
             default:
                 self.rawValue
             }
@@ -257,9 +243,9 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var supportsAudioInput: Bool {
             switch self {
-            case .gemini3Flash, .gemini25Pro, .gemini25Flash:
+            case .gemini31ProPreview, .gemini3Flash, .gemini25Pro, .gemini25Flash:
                 true
-            case .gemini25FlashLite:
+            case .gemini31FlashLite, .gemini25FlashLite:
                 false
             }
         }
@@ -270,7 +256,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var contextLength: Int {
             switch self {
-            case .gemini3Flash, .gemini25Pro, .gemini25Flash:
+            case .gemini31ProPreview, .gemini31FlashLite, .gemini3Flash, .gemini25Pro, .gemini25Flash:
                 1_048_576
             case .gemini25FlashLite:
                 524_288
@@ -279,16 +265,16 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
     }
 
     public enum Mistral: String, Sendable, Hashable, CaseIterable {
-        case large2 = "mistral-large-2"
-        case large = "mistral-large"
-        case medium = "mistral-medium"
-        case small = "mistral-small"
-        case nemo = "mistral-nemo"
-        case codestral
+        case largeLatest = "mistral-large-latest"
+        case mediumLatest = "mistral-medium-latest"
+        case medium35 = "mistral-medium-3-5"
+        case smallLatest = "mistral-small-latest"
+        case nemo = "open-mistral-nemo-2407"
+        case codestralLatest = "codestral-latest"
 
         public var supportsVision: Bool {
             switch self {
-            case .large2, .large: true
+            case .largeLatest, .mediumLatest, .medium35, .smallLatest: true
             default: false
             }
         }
@@ -306,23 +292,21 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var contextLength: Int {
             switch self {
-            case .large2, .large: 128_000
-            case .medium: 32000
-            case .small: 32000
+            case .largeLatest, .mediumLatest, .medium35, .smallLatest: 128_000
             case .nemo: 128_000
-            case .codestral: 32000
+            case .codestralLatest: 256_000
             }
         }
     }
 
     public enum Groq: String, Sendable, Hashable, CaseIterable {
         // Groq-hosted models (ultra-fast inference)
-        case llama3170b = "llama-3.1-70b"
-        case llama318b = "llama-3.1-8b"
-        case llama370b = "llama-3-70b"
-        case llama38b = "llama-3-8b"
-        case mixtral8x7b = "mixtral-8x7b"
-        case gemma29b = "gemma2-9b"
+        case gptOSS120B = "openai/gpt-oss-120b"
+        case gptOSS20B = "openai/gpt-oss-20b"
+        case llama3370b = "llama-3.3-70b-versatile"
+        case llama318b = "llama-3.1-8b-instant"
+        case llama4Maverick = "meta-llama/llama-4-maverick-17b-128e-instruct"
+        case llama4Scout = "meta-llama/llama-4-scout-17b-16e-instruct"
 
         public var supportsVision: Bool {
             false
@@ -340,68 +324,43 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var contextLength: Int {
             switch self {
-            case .llama3170b, .llama318b: 128_000
-            case .llama370b, .llama38b: 8000
-            case .mixtral8x7b: 32000
-            case .gemma29b: 8000
+            case .gptOSS120B, .gptOSS20B, .llama3370b, .llama318b, .llama4Maverick, .llama4Scout:
+                128_000
             }
         }
     }
 
     public enum Grok: Sendable, Hashable, CaseIterable {
-        // xAI Grok models (2025 lineup)
-        case grok4
-        case grok4FastReasoning
-        case grok4FastNonReasoning
-        case grokCodeFast1
-        case grok3
-        case grok3Mini
-        case grok2
-        case grok2Vision
-        case grok2Image
-        case grokVisionBeta
-        case grokBeta
+        // xAI Grok models
+        case grok43
+        case grok420MultiAgent
+        case grok420Reasoning
+        case grok420NonReasoning
 
         /// Custom models
         case custom(String)
 
         public static var allCases: [Grok] {
             [
-                .grok4,
-                .grok4FastReasoning,
-                .grok4FastNonReasoning,
-                .grokCodeFast1,
-                .grok3,
-                .grok3Mini,
-                .grok2,
-                .grok2Vision,
-                .grok2Image,
-                .grokVisionBeta,
-                .grokBeta,
+                .grok43,
+                .grok420MultiAgent,
+                .grok420Reasoning,
+                .grok420NonReasoning,
             ]
         }
 
         public var modelId: String {
             switch self {
             case let .custom(id): id
-            case .grok4: "grok-4-0709"
-            case .grok4FastReasoning: "grok-4-fast-reasoning"
-            case .grok4FastNonReasoning: "grok-4-fast-non-reasoning"
-            case .grokCodeFast1: "grok-code-fast-1"
-            case .grok3: "grok-3"
-            case .grok3Mini: "grok-3-mini"
-            case .grok2: "grok-2-1212"
-            case .grok2Vision: "grok-2-vision-1212"
-            case .grok2Image: "grok-2-image-1212"
-            case .grokVisionBeta: "grok-vision-beta"
-            case .grokBeta: "grok-beta"
+            case .grok43: "grok-4.3"
+            case .grok420MultiAgent: "grok-4.20-multi-agent-0309"
+            case .grok420Reasoning: "grok-4.20-0309-reasoning"
+            case .grok420NonReasoning: "grok-4.20-0309-non-reasoning"
             }
         }
 
         public var supportsVision: Bool {
             switch self {
-            case .grok2Vision, .grok2Image, .grokVisionBeta:
-                true
             case .custom: true // Assume custom models support vision
             default: false
             }
@@ -423,20 +382,12 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var contextLength: Int {
             switch self {
-            case .grok4,
-                 .grok4FastReasoning,
-                 .grok4FastNonReasoning:
-                132_000
-            case .grokCodeFast1,
-                 .grok3,
-                 .grok3Mini:
-                131_072
-            case .grok2,
-                 .grok2Vision,
-                 .grok2Image,
-                 .grokVisionBeta,
-                 .grokBeta:
-                128_000
+            case .grok43:
+                1_000_000
+            case .grok420MultiAgent,
+                 .grok420Reasoning,
+                 .grok420NonReasoning:
+                2_000_000
             case .custom: 128_000 // Default assumption for custom models
             }
         }
@@ -461,19 +412,13 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         case qwen25vl32b
 
         // Specialized models
-        case codellama
         case mistralNemo
         case qwen25
-        case deepseekR1
         case commandRPlus
 
         // Additional models referenced by CLI
-        case llama2
         case llama4
         case mistral
-        case mixtral
-        case neuralChat
-        case gemma
         case devstral
         case deepseekR18b
         case deepseekR1671b
@@ -496,17 +441,11 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
                 .llama32Vision90b,
                 .qwen25vl7b,
                 .qwen25vl32b,
-                .codellama,
                 .mistralNemo,
                 .qwen25,
-                .deepseekR1,
                 .commandRPlus,
-                .llama2,
                 .llama4,
                 .mistral,
-                .mixtral,
-                .neuralChat,
-                .gemma,
                 .devstral,
                 .deepseekR18b,
                 .deepseekR1671b,
@@ -529,17 +468,11 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
             case .llama32Vision90b: "llama3.2-vision:90b"
             case .qwen25vl7b: "qwen2.5vl:7b"
             case .qwen25vl32b: "qwen2.5vl:32b"
-            case .codellama: "codellama"
             case .mistralNemo: "mistral-nemo"
             case .qwen25: "qwen2.5"
-            case .deepseekR1: "deepseek-r1"
             case .commandRPlus: "command-r-plus"
-            case .llama2: "llama2"
             case .llama4: "llama4"
             case .mistral: "mistral"
-            case .mixtral: "mixtral"
-            case .neuralChat: "neural-chat"
-            case .gemma: "gemma"
             case .devstral: "devstral"
             case .deepseekR18b: "deepseek-r1:8b"
             case .deepseekR1671b: "deepseek-r1:671b"
@@ -550,7 +483,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var supportsVision: Bool {
             switch self {
-            case .llava, .bakllava, .llama32Vision11b, .llama32Vision90b,
+            case .llama4, .llava, .bakllava, .llama32Vision11b, .llama32Vision90b,
                  .qwen25vl7b, .qwen25vl32b:
                 return true
             case let .custom(id):
@@ -576,14 +509,12 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
                 return false // Vision models don't support tools
             case .llama33, .llama32, .llama31, .mistralNemo:
                 return true
-            case .codellama, .qwen25, .deepseekR1, .commandRPlus:
+            case .qwen25, .commandRPlus:
                 return true
-            case .llama2, .llama4, .mistral, .mixtral, .neuralChat, .gemma:
+            case .llama4, .mistral, .devstral:
                 return true
             case .deepseekR18b, .deepseekR1671b, .firefunction, .commandR:
                 return true
-            case .devstral:
-                return false // DevStral doesn't support tools
             case let .custom(id):
                 // Heuristic: treat likely-vision models as tool-less unless explicitly modeled.
                 let lower = id.lowercased()
@@ -609,19 +540,16 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
             case .llava, .bakllava: 32000
             case .llama32Vision11b: 128_000
             case .llama32Vision90b: 128_000
-            case .qwen25vl7b, .qwen25vl32b: 32000
-            case .codellama: 32000
+            case .qwen25vl7b, .qwen25vl32b: 125_000
             case .mistralNemo: 128_000
             case .qwen25: 32000
-            case .deepseekR1: 128_000
             case .commandRPlus: 128_000
-            case .llama2, .llama4: 128_000
-            case .mistral, .mixtral: 32000
-            case .neuralChat, .gemma: 32000
-            case .devstral: 16000
+            case .llama4: 1_000_000
+            case .mistral: 32000
+            case .devstral: 128_000
             case .deepseekR18b: 64000
             case .deepseekR1671b: 128_000
-            case .firefunction: 32000
+            case .firefunction: 8000
             case .commandR: 128_000
             case .custom: 32000
             }
@@ -634,15 +562,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         case gptOSS20B
 
         // Common local models
-        case llama370B
-        case llama333B
-        case mixtral8x7B
-        case codeLlama34B
-        case mistral7B
-        case phi3Mini
-
-        /// Currently loaded model
-        case current
+        case llama3370B
 
         /// Custom model path
         case custom(String)
@@ -651,27 +571,15 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
             [
                 .gptOSS120B,
                 .gptOSS20B,
-                .llama370B,
-                .llama333B,
-                .mixtral8x7B,
-                .codeLlama34B,
-                .mistral7B,
-                .phi3Mini,
-                .current,
+                .llama3370B,
             ]
         }
 
         public var modelId: String {
             switch self {
-            case .gptOSS120B: "gpt-oss-120b"
-            case .gptOSS20B: "gpt-oss-20b"
-            case .llama370B: "llama-3-70b"
-            case .llama333B: "llama-3.3-70b"
-            case .mixtral8x7B: "mixtral-8x7b"
-            case .codeLlama34B: "codellama-34b"
-            case .mistral7B: "mistral-7b"
-            case .phi3Mini: "phi-3-mini"
-            case .current: "current"
+            case .gptOSS120B: "openai/gpt-oss-120b"
+            case .gptOSS20B: "openai/gpt-oss-20b"
+            case .llama3370B: "meta/llama-3.3-70b"
             case let .custom(id): id
             }
         }
@@ -679,14 +587,14 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public var supportsVision: Bool {
             switch self {
             case .gptOSS120B, .gptOSS20B: false
-            case .llama370B, .llama333B: false
+            case .llama3370B: false
             default: false
             }
         }
 
         public var supportsTools: Bool {
             switch self {
-            case .current, .custom: true // Assume support
+            case .custom: true // Assume support
             default: true // Most modern models support tools
             }
         }
@@ -694,12 +602,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public var contextLength: Int {
             switch self {
             case .gptOSS120B, .gptOSS20B: 128_000
-            case .llama370B, .llama333B: 128_000
-            case .mixtral8x7B: 32000
-            case .codeLlama34B: 16000
-            case .mistral7B: 32000
-            case .phi3Mini: 4096
-            case .current: 16000 // Conservative default
+            case .llama3370B: 128_000
             case .custom: 16000
             }
         }
@@ -857,8 +760,8 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
     /// Default Claude model (opus47)
     public static let claude: LanguageModel = .anthropic(.opus47)
 
-    /// Default Grok model (Grok-4-0709)
-    public static let grok4: LanguageModel = .grok(.grok4)
+    /// Default Grok model (Grok 4.3)
+    public static let grok4: LanguageModel = .grok(.grok43)
 
     /// Default Llama model
     public static let llama: LanguageModel = .ollama(.llama33)
@@ -1110,27 +1013,20 @@ extension LanguageModel {
 
         let normalized = trimmed.lowercased()
         let dashed = normalized.replacingOccurrences(of: "_", with: "-")
-        let compact = dashed.replacingOccurrences(of: "-", with: "")
+        let compact = dashed.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")
         let dotted = dashed.replacingOccurrences(of: ".", with: "-")
 
         // MARK: OpenAI models
 
-        if compact.contains("gpt4") || compact.contains("gpt3") || compact.contains("o3") || compact.contains("o4") {
+        if compact.contains("gpt4") || compact.contains("gpt3") || compact.contains("o3") || compact.contains("o4") ||
+            compact.contains("gpt51") || compact.contains("gpt52") ||
+            compact.contains("gpt5thinking") || compact.contains("gpt5chat")
+        {
             return nil
         }
 
         if dashed == "gpt-5-pro" || compact == "gpt5pro" {
             return .openai(.gpt5Pro)
-        }
-
-        if dotted.contains("gpt-5-thinking") || compact.contains("gpt5thinking") {
-            if dotted.contains("nano") || compact.contains("nano") {
-                return .openai(.gpt5ThinkingNano)
-            }
-            if dotted.contains("mini") || compact.contains("mini") {
-                return .openai(.gpt5ThinkingMini)
-            }
-            return .openai(.gpt5Thinking)
         }
 
         if dotted.contains("gpt-5-5") || compact.contains("gpt55") {
@@ -1140,22 +1036,10 @@ extension LanguageModel {
             return .openai(.gpt55)
         }
 
-        if dotted.contains("gpt-5-2") || compact.contains("gpt52") {
-            // GPT-5.2 currently has no mini/nano variants; map those suffixes to GPT-5 mini/nano.
-            if dotted.contains("nano") || compact.contains("nano") { return .openai(.gpt5Nano) }
-            if dotted.contains("mini") || compact.contains("mini") { return .openai(.gpt5Mini) }
-            return .openai(.gpt52)
-        }
-
-        if dotted.contains("gpt-5-1") || compact.contains("gpt51") {
-            // GPT-5.1 currently has no mini/nano variants; map those suffixes to GPT-5 mini/nano.
-            if dotted.contains("nano") || compact.contains("nano") { return .openai(.gpt5Nano) }
-            if dotted.contains("mini") || compact.contains("mini") { return .openai(.gpt5Mini) }
-            return .openai(.gpt51)
-        }
-
-        if dotted.contains("gpt-5-chat") || compact.contains("gpt5chat") {
-            return .openai(.gpt5ChatLatest)
+        if dotted.contains("gpt-5-4") || compact.contains("gpt54") {
+            if dotted.contains("nano") || compact.contains("nano") { return .openai(.gpt54Nano) }
+            if dotted.contains("mini") || compact.contains("mini") { return .openai(.gpt54Mini) }
+            return .openai(.gpt54)
         }
 
         if dashed == "gpt-5-nano" || compact == "gpt5nano" {
@@ -1173,6 +1057,14 @@ extension LanguageModel {
         // MARK: Anthropic models
 
         if dotted.contains("claude-3") || compact.contains("claude3") {
+            return nil
+        }
+
+        if
+            normalized == "claude-opus-4-20250514" ||
+            normalized == "claude-sonnet-4-20250514" ||
+            normalized.contains("-thinking")
+        {
             return nil
         }
 
@@ -1198,11 +1090,21 @@ extension LanguageModel {
             return .anthropic(.opus45)
         }
 
-        if dotted.contains("claude-opus-4") || compact.contains("claudeopus4") || dotted.contains("opus-4") {
-            if dotted.contains("thinking") {
-                return .anthropic(.opus4Thinking)
-            }
+        if
+            dotted.contains("claude-opus-4-1-20250805") ||
+            dotted.contains("claude-opus-4") ||
+            compact.contains("claudeopus4") ||
+            dotted.contains("opus-4")
+        {
             return .anthropic(.opus4)
+        }
+
+        if
+            dotted.contains("claude-sonnet-4-6") ||
+            compact.contains("claudesonnet46") ||
+            dotted.contains("sonnet-4-6")
+        {
+            return .anthropic(.sonnet46)
         }
 
         if
@@ -1215,10 +1117,7 @@ extension LanguageModel {
         }
 
         if dotted.contains("claude-sonnet-4") || compact.contains("claudesonnet4") {
-            if dotted.contains("thinking") {
-                return .anthropic(.sonnet4Thinking)
-            }
-            return .anthropic(.sonnet4)
+            return .anthropic(.sonnet46)
         }
 
         if
@@ -1244,6 +1143,20 @@ extension LanguageModel {
         }
 
         // MARK: Google models
+
+        if
+            dashed.contains("gemini-3.1-pro") || dotted.contains("gemini-3-1-pro") || compact
+                .contains("gemini31pro")
+        {
+            return .google(.gemini31ProPreview)
+        }
+
+        if
+            dashed.contains("gemini-3.1-flash-lite") || dotted.contains("gemini-3-1-flash-lite") || compact
+                .contains("gemini31flashlite")
+        {
+            return .google(.gemini31FlashLite)
+        }
 
         if dashed.contains("gemini-3-flash") || compact.contains("gemini3flash") {
             return .google(.gemini3Flash)
@@ -1276,54 +1189,40 @@ extension LanguageModel {
         ]
 
         if canonicalForms.contains(where: { genericGeminiIdentifiers.contains($0) }) {
-            return .google(.gemini3Flash)
+            return .google(.gemini31ProPreview)
         }
 
         // MARK: Grok models
 
-        if dotted.contains("grok-4-fast-reasoning") || compact.contains("grok4fastreasoning") {
-            return .grok(.grok4FastReasoning)
+        let unsupportedGrok = normalized.hasPrefix("grok-2") ||
+            normalized.hasPrefix("grok-3") ||
+            normalized == "grok-4-0709" ||
+            normalized.hasPrefix("grok-4-fast") ||
+            normalized.hasPrefix("grok-code-fast") ||
+            normalized.contains("grok-beta") ||
+            normalized.contains("grok-vision-beta")
+        if unsupportedGrok {
+            return nil
         }
 
-        if dotted.contains("grok-4-fast-non-reasoning") || compact.contains("grok4fastnonreasoning") {
-            return .grok(.grok4FastNonReasoning)
+        if dotted.contains("grok-4-20-multi-agent") || compact.contains("grok420multiagent") {
+            return .grok(.grok420MultiAgent)
         }
 
-        if dotted.contains("grok-code-fast-1") || compact.contains("grokcodefast1") {
-            return .grok(.grokCodeFast1)
+        if dotted.contains("grok-4-20-0309-reasoning") || compact.contains("grok4200309reasoning") {
+            return .grok(.grok420Reasoning)
         }
 
-        if dotted.contains("grok-4") || compact.contains("grok4") {
-            return .grok(.grok4)
+        if dotted.contains("grok-4-20-0309-non-reasoning") || compact.contains("grok4200309nonreasoning") {
+            return .grok(.grok420NonReasoning)
         }
 
-        if dotted.contains("grok-3") || compact.contains("grok3") {
-            if dotted.contains("mini") || compact.contains("mini") {
-                return .grok(.grok3Mini)
-            }
-            return .grok(.grok3)
-        }
-
-        if dotted.contains("grok-2") || compact.contains("grok2") {
-            if dotted.contains("vision") {
-                return .grok(.grok2Vision)
-            }
-            if dotted.contains("image") {
-                return .grok(.grok2Image)
-            }
-            return .grok(.grok2)
-        }
-
-        if dotted.contains("grok-vision-beta") || compact.contains("grokvisionbeta") {
-            return .grok(.grokVisionBeta)
-        }
-
-        if dotted.contains("grok-beta") || compact.contains("grokbeta") {
-            return .grok(.grokBeta)
+        if dotted.contains("grok-4-3") || normalized.contains("grok-4.3") || compact.contains("grok43") {
+            return .grok(.grok43)
         }
 
         if compact.contains("grok") {
-            return .grok(.grok4FastReasoning)
+            return .grok(.grok43)
         }
 
         // MARK: Ollama models
@@ -1333,6 +1232,14 @@ extension LanguageModel {
                 return .ollama(.gptOSS20B)
             }
             return .ollama(.gptOSS120B)
+        }
+
+        if compact.contains("llama4") {
+            return .ollama(.llama4)
+        }
+
+        if compact.contains("llama2") {
+            return nil
         }
 
         if compact.contains("llama33") || dashed.contains("llama3.3") {
@@ -1354,7 +1261,7 @@ extension LanguageModel {
         // MARK: Generic fallbacks
 
         if compact.contains("gpt") {
-            return .openai(.gpt5Mini)
+            return .openai(.gpt55)
         }
 
         return nil

@@ -22,10 +22,10 @@ struct ProviderSystemTests {
     @Test
     func `Provider Factory - Anthropic Provider Creation`() async throws {
         try await TestHelpers.withTestConfiguration(apiKeys: ["anthropic": "test-key"]) { config in
-            let model = Model.anthropic(.opus4)
+            let model = Model.anthropic(.opus47)
             let provider = try ProviderFactory.createProvider(for: model, configuration: config)
 
-            #expect(provider.modelId == "claude-opus-4-1-20250805")
+            #expect(provider.modelId == "claude-opus-4-7")
             #expect(provider.capabilities.supportsVision == true)
             #expect(provider.capabilities.supportsTools == true)
             #expect(provider.capabilities.supportsStreaming == true)
@@ -35,10 +35,10 @@ struct ProviderSystemTests {
     @Test
     func `Provider Factory - Grok Provider Creation`() async throws {
         try await TestHelpers.withTestConfiguration(apiKeys: ["grok": "test-key"]) { config in
-            let model = Model.grok(.grok4FastReasoning)
+            let model = Model.grok(.grok43)
             let provider = try ProviderFactory.createProvider(for: model, configuration: config)
 
-            #expect(provider.modelId == "grok-4-fast-reasoning")
+            #expect(provider.modelId == "grok-4.3")
             #expect(provider.capabilities.supportsTools == true)
             #expect(provider.capabilities.supportsStreaming == true)
         }
@@ -107,12 +107,9 @@ struct ProviderSystemTests {
         #expect(Model.openai(.custom("text-only-openai")).supportsVision == false)
 
         #expect(Model.anthropic(.opus4).supportsVision == true)
-        #expect(Model.anthropic(.sonnet4).supportsVision == true)
+        #expect(Model.anthropic(.sonnet46).supportsVision == true)
 
-        #expect(Model.grok(.grok2Vision).supportsVision == true)
-        #expect(Model.grok(.grok2Image).supportsVision == true)
-        #expect(Model.grok(.grok2).supportsVision == false)
-        #expect(Model.grok(.grok4).supportsVision == false)
+        #expect(Model.grok(.grok43).supportsVision == false)
 
         #expect(Model.ollama(.llava).supportsVision == true)
         #expect(Model.ollama(.llama33).supportsVision == false)
@@ -125,9 +122,9 @@ struct ProviderSystemTests {
         #expect(Model.openai(.gpt55).supportsTools == true)
 
         #expect(Model.anthropic(.opus4).supportsTools == true)
-        #expect(Model.anthropic(.sonnet4).supportsTools == true)
+        #expect(Model.anthropic(.sonnet46).supportsTools == true)
 
-        #expect(Model.grok(.grok4).supportsTools == true)
+        #expect(Model.grok(.grok43).supportsTools == true)
 
         #expect(Model.ollama(.llama33).supportsTools == true)
         #expect(Model.ollama(.llava).supportsTools == false) // Vision models don't support tools
@@ -138,7 +135,7 @@ struct ProviderSystemTests {
     func `Model Capabilities - Streaming Support`() {
         #expect(Model.openai(.gpt55).supportsStreaming == true)
         #expect(Model.anthropic(.opus4).supportsStreaming == true)
-        #expect(Model.grok(.grok4).supportsStreaming == true)
+        #expect(Model.grok(.grok43).supportsStreaming == true)
         #expect(Model.ollama(.llama33).supportsStreaming == true)
     }
 

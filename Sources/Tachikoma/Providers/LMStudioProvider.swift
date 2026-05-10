@@ -41,7 +41,7 @@ public actor LMStudioProvider: ModelProvider {
 
     public init(
         baseURL: String = "http://localhost:1234/v1",
-        modelId: String = "current",
+        modelId: String = "openai/gpt-oss-20b",
         apiKey: String? = nil,
         sessionConfiguration: URLSessionConfiguration = .default,
     ) {
@@ -74,8 +74,8 @@ public actor LMStudioProvider: ModelProvider {
 
         for url in commonURLs {
             let provider = LMStudioProvider(baseURL: url)
-            if await (try? provider.healthCheck()) != nil {
-                return provider
+            if let status = await (try? provider.healthCheck()) {
+                return LMStudioProvider(baseURL: url, modelId: status.model ?? "openai/gpt-oss-20b")
             }
         }
 

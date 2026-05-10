@@ -15,15 +15,22 @@ struct ModelParsingTests {
     }
 
     @Test
-    func `parse GPT-5.2 base model`() {
-        let parsed = LanguageModel.parse(from: "gpt-5.2")
-        #expect(parsed == .openai(.gpt52))
+    func `parse GPT-5.4 base model`() {
+        let parsed = LanguageModel.parse(from: "gpt-5.4")
+        #expect(parsed == .openai(.gpt54))
     }
 
     @Test
-    func `parse GPT-5.1 nano alias`() {
-        let parsed = LanguageModel.parse(from: "gpt51-nano")
-        #expect(parsed == .openai(.gpt5Nano))
+    func `parse GPT-5.4 nano alias`() {
+        let parsed = LanguageModel.parse(from: "gpt54-nano")
+        #expect(parsed == .openai(.gpt54Nano))
+    }
+
+    @Test
+    func `LanguageModel rejects retired OpenAI ids`() {
+        for model in ["gpt-4o", "gpt-4.1", "gpt-5.1", "gpt-5.2", "gpt-5-thinking"] {
+            #expect(LanguageModel.parse(from: model) == nil)
+        }
     }
 
     @Test
@@ -45,21 +52,21 @@ struct ModelParsingTests {
     }
 
     @Test
-    func `parse Gemini 3 Flash model id`() {
-        let parsed = LanguageModel.parse(from: "gemini-3-flash")
-        #expect(parsed == .google(.gemini3Flash))
+    func `parse Gemini 3.1 Pro model id`() {
+        let parsed = LanguageModel.parse(from: "gemini-3.1-pro-preview")
+        #expect(parsed == .google(.gemini31ProPreview))
     }
 
     @Test
     func `parse shorthand Gemini alias`() {
         let parsed = LanguageModel.parse(from: "gemini")
-        #expect(parsed == .google(.gemini3Flash))
+        #expect(parsed == .google(.gemini31ProPreview))
     }
 
     @Test
     func `ModelSelector rejects legacy OpenAI before Ollama fallback`() throws {
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
-            for model in ["gpt-4o", "gpt-4.1", "gpt-3.5-turbo", "o4-mini", "o3-mini"] {
+            for model in ["gpt-4o", "gpt-4.1", "gpt-3.5-turbo", "o4-mini", "o3-mini", "gpt-5.2"] {
                 #expect(throws: ModelValidationError.self) {
                     _ = try ModelSelector.parseModel(model)
                 }

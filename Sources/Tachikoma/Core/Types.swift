@@ -186,8 +186,7 @@ public enum OpenAIAPIMode: String, Sendable, CaseIterable {
     public static func defaultMode(for model: LanguageModel.OpenAI) -> OpenAIAPIMode {
         // Determine default API mode for a given model
         switch model {
-        case .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano, .gpt51, .gpt52, .gpt55,
-             .gpt5Thinking, .gpt5ThinkingMini, .gpt5ThinkingNano, .gpt5ChatLatest:
+        case .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano, .gpt54, .gpt54Mini, .gpt54Nano, .gpt55:
             .responses // GPT-5 defaults to Responses API
         default:
             .chat // All other models use Chat Completions API

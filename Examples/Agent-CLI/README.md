@@ -171,11 +171,10 @@ agent-cli --mcp-server "db -- npx @modelcontextprotocol/server-postgres postgres
 ## Supported Models
 
 ### OpenAI
-- GPT-5 series: `gpt-5.5`, `gpt-5.2`, `gpt-5.1`, `gpt-5`, `gpt-5-mini`, `gpt-5-nano`
+- GPT-5 series: `gpt-5.5`, `gpt-5.4`, `gpt-5`, `gpt-5-mini`, `gpt-5-nano`
 
 ### Anthropic
-- Claude 4: `opus-4`, `sonnet-4`
-- Claude 4.x: `claude`, `sonnet`, `haiku`
+- Claude 4.x: `claude-opus-4.7`, `claude-sonnet-4.6`, `claude-haiku-4.5`
 
 ### Others
 - Google: `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`

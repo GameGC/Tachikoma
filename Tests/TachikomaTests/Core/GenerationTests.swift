@@ -29,7 +29,7 @@ struct GenerationTests {
         try await TestHelpers.withTestConfiguration(apiKeys: ["anthropic": "test-key"]) { config in
             let result = try await generate(
                 "Explain quantum physics",
-                using: .anthropic(.sonnet4),
+                using: .anthropic(.sonnet46),
                 system: "You are a physics teacher",
                 maxTokens: 200,
                 configuration: config,
@@ -105,7 +105,7 @@ struct GenerationTests {
         try await TestHelpers.withTestConfiguration(apiKeys: ["anthropic": "test-key"]) { config in
             let stream = try await stream(
                 "Write a haiku",
-                using: .anthropic(.sonnet4),
+                using: .anthropic(.sonnet46),
                 system: "You are a poet",
                 configuration: config,
             )
@@ -249,7 +249,7 @@ struct GenerationTests {
 
             // Use generateText with tools
             let result = try await generateText(
-                model: .anthropic(.sonnet4),
+                model: .anthropic(.sonnet46),
                 messages: [.user("Use the test tool")],
                 tools: [testTool],
                 configuration: config,

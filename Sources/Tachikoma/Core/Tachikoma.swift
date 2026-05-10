@@ -114,7 +114,7 @@ public enum API {
     /// Model selection system
     public enum Models {
         /// Type-safe model selection
-        /// - `.openai(.gpt55)`, `.anthropic(.opus47)`, `.grok(.grok4)`, `.ollama(.llama3_3)`
+        /// - `.openai(.gpt55)`, `.anthropic(.opus47)`, `.grok(.grok43)`, `.ollama(.llama3_3)`
         public static let typed = "Provider-specific model enums"
 
         /// Custom endpoints

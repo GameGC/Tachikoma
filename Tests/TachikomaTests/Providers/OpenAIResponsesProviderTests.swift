@@ -24,8 +24,9 @@ struct OpenAIResponsesProviderTests {
 
         let gpt5Models: [LanguageModel.OpenAI] = [
             .gpt55,
-            .gpt52,
-            .gpt51,
+            .gpt54,
+            .gpt54Mini,
+            .gpt54Nano,
             .gpt5,
             .gpt5Mini,
             .gpt5Nano,
@@ -82,11 +83,11 @@ struct OpenAIResponsesProviderTests {
 
         let responsesModels: [LanguageModel.OpenAI] = [
             .gpt55,
-            .gpt52,
-            .gpt51,
+            .gpt54,
+            .gpt54Mini,
+            .gpt54Nano,
             .gpt5,
             .gpt5Mini,
-            .gpt5Thinking,
         ]
 
         for model in responsesModels {

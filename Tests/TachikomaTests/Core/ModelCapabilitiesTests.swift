@@ -8,8 +8,9 @@ enum ModelCapabilitiesTests {
         func `GPT-5 models exclude temperature and topP`() {
             let models: [LanguageModel] = [
                 .openai(.gpt55),
-                .openai(.gpt52),
-                .openai(.gpt51),
+                .openai(.gpt54),
+                .openai(.gpt54Mini),
+                .openai(.gpt54Nano),
                 .openai(.gpt5),
                 .openai(.gpt5Mini),
                 .openai(.gpt5Nano),
@@ -57,7 +58,7 @@ enum ModelCapabilitiesTests {
             let models: [LanguageModel] = [
                 .anthropic(.opus47),
                 .anthropic(.opus4),
-                .anthropic(.sonnet4),
+                .anthropic(.sonnet46),
                 .anthropic(.sonnet45),
                 .anthropic(.haiku45),
             ]
@@ -73,6 +74,8 @@ enum ModelCapabilitiesTests {
         @Test
         func `Google models support topK and thinking`() {
             let models: [LanguageModel] = [
+                .google(.gemini31ProPreview),
+                .google(.gemini31FlashLite),
                 .google(.gemini25Pro),
                 .google(.gemini25Flash),
                 .google(.gemini25FlashLite),
@@ -90,8 +93,9 @@ enum ModelCapabilitiesTests {
         @Test
         func `Mistral models support safe mode`() {
             let models: [LanguageModel] = [
-                .mistral(.large2),
-                .mistral(.codestral),
+                .mistral(.largeLatest),
+                .mistral(.medium35),
+                .mistral(.codestralLatest),
             ]
 
             for model in models {
@@ -104,8 +108,8 @@ enum ModelCapabilitiesTests {
         @Test
         func `Groq models support speed level`() {
             let models: [LanguageModel] = [
-                .groq(.llama3170b),
-                .groq(.llama370b),
+                .groq(.llama3370b),
+                .groq(.llama4Maverick),
             ]
 
             for model in models {
@@ -118,8 +122,8 @@ enum ModelCapabilitiesTests {
         @Test
         func `Grok models support fun mode`() {
             let models: [LanguageModel] = [
-                .grok(.grok4),
-                .grok(.grok3),
+                .grok(.grok43),
+                .grok(.grok420Reasoning),
             ]
 
             for model in models {
@@ -285,7 +289,7 @@ enum ModelCapabilitiesTests {
         @Test
         func `Concurrent capability access`() async {
             let models: [LanguageModel] = [
-                .openai(.gpt51),
+                .openai(.gpt54),
                 .openai(.gpt55),
                 .anthropic(.opus4),
                 .google(.gemini25Flash),

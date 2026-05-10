@@ -4,17 +4,10 @@ import Testing
 
 struct GrokModelCatalogTests {
     private static let catalog: [Model.Grok] = [
-        .grok4,
-        .grok4FastReasoning,
-        .grok4FastNonReasoning,
-        .grokCodeFast1,
-        .grok3,
-        .grok3Mini,
-        .grok2,
-        .grok2Vision,
-        .grok2Image,
-        .grokVisionBeta,
-        .grokBeta,
+        .grok43,
+        .grok420MultiAgent,
+        .grok420Reasoning,
+        .grok420NonReasoning,
     ]
 
     private func requireModernPlatforms(_ body: () throws -> Void) rethrows {
@@ -52,13 +45,22 @@ struct GrokModelCatalogTests {
     }
 
     @Test
-    func `Vision capability only flips on for vision/image Grok models`() {
+    func `Current Grok text models do not advertise vision`() {
         self.requireModernPlatforms {
-            let visionModels: Set<Model.Grok> = [.grok2Vision, .grok2Image, .grokVisionBeta]
-
             for model in Self.catalog {
                 let languageModel = Model.grok(model)
-                #expect(languageModel.supportsVision == visionModels.contains(model))
+                #expect(languageModel.supportsVision == false)
+            }
+        }
+    }
+
+    @Test
+    func `ModelSelector rejects retired Grok identifiers`() throws {
+        try self.requireModernPlatforms {
+            for id in ["grok-4-0709", "grok-4-fast-reasoning", "grok-code-fast-1", "grok-3", "grok-2-1212"] {
+                #expect(throws: ModelValidationError.self) {
+                    _ = try ModelSelector.parseModel(id)
+                }
             }
         }
     }

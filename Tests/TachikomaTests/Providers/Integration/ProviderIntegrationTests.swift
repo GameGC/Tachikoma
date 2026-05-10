@@ -164,7 +164,7 @@ struct ProviderIntegrationTests {
 
     @Test(.enabled(if: Self.hasAnthropicKey))
     func `Anthropic Provider - Real API Call`() async throws {
-        let model = Model.anthropic(.sonnet4)
+        let model = Model.anthropic(.sonnet46)
         do {
             let response = try await generate(
                 TestConfig.shortMessage,
@@ -183,7 +183,7 @@ struct ProviderIntegrationTests {
 
     @Test(.enabled(if: Self.hasAnthropicKey))
     func `Anthropic Provider - Tool Calling`() async throws {
-        let model = Model.anthropic(.sonnet4)
+        let model = Model.anthropic(.sonnet46)
         let config = TachikomaConfiguration()
 
         do {
@@ -261,7 +261,7 @@ struct ProviderIntegrationTests {
 
     @Test(.enabled(if: Self.hasGrokKey))
     func `Grok Provider - Real API Call`() async throws {
-        let model = Model.grok(.grok3)
+        let model = Model.grok(.grok43)
         do {
             let response = try await generate(
                 TestConfig.shortMessage,
@@ -312,7 +312,7 @@ struct ProviderIntegrationTests {
 
     @Test(.enabled(if: Self.hasGroqKey))
     func `Groq Provider - Real API Call`() async throws {
-        let model = Model.groq(.llama38b)
+        let model = Model.groq(.llama318b)
         let response = try await generate(TestConfig.shortMessage, using: model, maxTokens: 50, temperature: 0.0)
 
         #expect(response.lowercased().contains("hello"))

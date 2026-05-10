@@ -58,7 +58,7 @@ struct AICLI {
             if let modelString = config.modelString {
                 model = try ModelSelector.parseModel(modelString)
             } else {
-                model = .openai(.gpt51) // Default to GPT-5.1
+                model = .openai(.gpt55)
             }
         } catch {
             print("❌ Error parsing model: \(error)")
@@ -213,51 +213,52 @@ struct AICLI {
             # Streaming responses
             ai-cli --stream --model claude "Write a short story"
 
-            # Show thinking process (reasoning models)
-            ai-cli --thinking --model gpt-5-thinking "Solve this logic puzzle"
+            # Show thinking process
+            ai-cli --thinking --model gpt-5.5 "Solve this logic puzzle"
             ai-cli --thinking --model gpt-5 "Complex reasoning task"
 
         PROVIDERS & MODELS:
 
         OpenAI:
           • gpt-5, gpt-5-pro, gpt-5-mini, gpt-5-nano (GPT-5 series, August 2025)
-          • gpt-5-thinking, gpt-5-thinking-mini, gpt-5-thinking-nano
-          • gpt-5.5, gpt-5.2, gpt-5.1 (flagship)
-          • gpt-5.5, gpt-5-mini (multimodal)
+          • gpt-5.5, gpt-5.4, gpt-5.4-mini, gpt-5.4-nano
 
         Anthropic:
-          • claude-opus-4-1-20250805, claude-sonnet-4-20250514 (Claude 4)
-          • claude-opus-4-7, claude-sonnet-4.5, claude-haiku-4.5 (Claude 4.x)
+          • claude-opus-4-7, claude-opus-4-5, claude-opus-4-1-20250805
+          • claude-sonnet-4-6, claude-sonnet-4-5-20250929, claude-haiku-4-5
 
         Google:
+          • gemini-3.1-pro-preview, gemini-3.1-flash-lite
+          • gemini-3-flash-preview
           • gemini-2.5-pro (reasoning, thinking support)
           • gemini-2.5-flash, gemini-2.5-flash-lite
 
         Mistral:
-          • mistral-large-2, mistral-large, mistral-small
-          • mistral-nemo, codestral
+          • mistral-large-latest, mistral-medium-latest, mistral-medium-3-5
+          • mistral-small-latest, open-mistral-nemo-2407, codestral-latest
 
         Groq (Ultra-fast):
-          • llama-3.1-70b, llama-3.1-8b
-          • mixtral-8x7b, gemma2-9b
+          • openai/gpt-oss-120b, openai/gpt-oss-20b
+          • llama-3.3-70b-versatile, llama-3.1-8b-instant
+          • meta-llama/llama-4-maverick-17b-128e-instruct
 
         Grok (xAI):
-          • grok-4-0709, grok-4-fast-reasoning, grok-4-fast-non-reasoning
-          • grok-code-fast-1, grok-3, grok-3-mini
-          • grok-2-1212, grok-2-vision-1212, grok-2-image-1212 (Vision)
+          • grok-4.3
+          • grok-4.20-multi-agent-0309
+          • grok-4.20-0309-reasoning, grok-4.20-0309-non-reasoning
 
         Ollama (Local):
           • llama3.3, llama3.2, llama3.1 (Recommended)
           • llava, bakllava (Vision models)
-          • codellama, mistral-nemo, qwen2.5
-          • deepseek-r1, command-r-plus
+          • mistral-nemo, qwen2.5
+          • deepseek-r1:8b, deepseek-r1:671b, command-r-plus
           • Custom: any-model:tag
 
         SHORTCUTS:
-          • claude, opus → claude-opus-4-1-20250805
+          • claude, opus → claude-opus-4-7
           • gpt → gpt-5.5
-          • grok → grok-4-fast-reasoning
-          • gemini → gemini-2.5-flash
+          • grok → grok-4.3
+          • gemini → gemini-3.1-pro-preview
           • llama, llama3 → llama3.3
 
         API KEYS:
@@ -583,14 +584,15 @@ struct AICLI {
     static func isReasoningModel(_ model: LanguageModel) -> Bool {
         guard case let .openai(openaiModel) = model else { return false }
         switch openaiModel {
-        case .gpt5,
+        case .gpt55,
+             .gpt54,
+             .gpt54Mini,
+             .gpt54Nano,
              .gpt5Pro,
-             .gpt5Mini,
-             .gpt5Nano,
-             .gpt5Thinking,
-             .gpt5ThinkingMini,
-             .gpt5ThinkingNano,
-             .gpt5ChatLatest:
+             .gpt5Mini:
+            return true
+        case .gpt5,
+             .gpt5Nano:
             return true
         default:
             return false
@@ -798,19 +800,19 @@ struct AICLI {
         switch model {
         case let .openai(openaiModel):
             switch openaiModel {
-            case .gpt55, .gpt52, .gpt51, .gpt5:
+            case .gpt55, .gpt54, .gpt5:
                 inputCostPer1k = 0.005
                 outputCostPer1k = 0.020
-            case .gpt5Mini, .gpt5Nano:
+            case .gpt54Mini, .gpt54Nano, .gpt5Mini, .gpt5Nano:
                 return nil // Pricing TBD
             default: return nil
             }
         case let .anthropic(anthropicModel):
             switch anthropicModel {
-            case .opus4, .opus4Thinking:
+            case .opus47, .opus45, .opus4:
                 inputCostPer1k = 0.015
                 outputCostPer1k = 0.075
-            case .sonnet4, .sonnet4Thinking:
+            case .sonnet46, .sonnet45:
                 inputCostPer1k = 0.003
                 outputCostPer1k = 0.015
             case .haiku45:

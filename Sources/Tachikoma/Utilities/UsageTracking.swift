@@ -529,16 +529,13 @@ public struct ModelCostCalculator: Sendable {
         case let .openai(openaiModel):
             switch openaiModel {
             case .gpt55: (5.00, 20.00) // GPT-5.5 pricing estimate
-            case .gpt52: (5.00, 20.00) // GPT-5.2 pricing estimate
-            case .gpt51: (5.00, 20.00) // GPT-5.1 pricing estimate
+            case .gpt54: (5.00, 20.00) // GPT-5.4 pricing estimate
+            case .gpt54Mini: (1.00, 4.00)
+            case .gpt54Nano: (0.50, 2.00)
             case .gpt5: (5.00, 20.00) // GPT-5 pricing estimate
             case .gpt5Pro: (12.00, 48.00) // Higher reasoning budget
             case .gpt5Mini: (1.00, 4.00) // GPT-5 Mini pricing estimate
             case .gpt5Nano: (0.50, 2.00) // GPT-5 Nano pricing estimate
-            case .gpt5Thinking: (16.00, 64.00) // Extended reasoning premium
-            case .gpt5ThinkingMini: (4.00, 16.00)
-            case .gpt5ThinkingNano: (1.50, 6.00)
-            case .gpt5ChatLatest: (2.50, 10.00)
             case .custom: (2.50, 10.00) // Default estimate
             }
         // Anthropic Pricing (as of 2025)
@@ -546,8 +543,8 @@ public struct ModelCostCalculator: Sendable {
             switch anthropicModel {
             case .opus47: (15.00, 75.00)
             case .opus45: (5.00, 25.00)
-            case .opus4, .opus4Thinking: (15.00, 75.00)
-            case .sonnet4, .sonnet4Thinking: (3.00, 15.00)
+            case .opus4: (15.00, 75.00)
+            case .sonnet46: (3.00, 15.00)
             case .sonnet45: (4.00, 18.00)
             case .haiku45: (1.20, 6.00)
             case .custom: (3.00, 15.00) // Default estimate
@@ -555,6 +552,8 @@ public struct ModelCostCalculator: Sendable {
         // Google Pricing (estimates)
         case let .google(googleModel):
             switch googleModel {
+            case .gemini31ProPreview: (1.25, 10.00)
+            case .gemini31FlashLite: (0.10, 0.40)
             case .gemini3Flash: (0.50, 3.00)
             case .gemini25Pro: (1.25, 10.00)
             case .gemini25Flash: (0.30, 2.50)

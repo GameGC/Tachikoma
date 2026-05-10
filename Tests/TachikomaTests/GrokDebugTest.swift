@@ -31,7 +31,7 @@ func `Debug Grok streaming issue`() async throws {
     // Test with minimal setup
     let stream = try await stream(
         "Say hello",
-        using: .grok(.grok3),
+        using: .grok(.grok43),
     )
 
     var receivedContent = false

@@ -7,7 +7,7 @@ struct LMStudioProviderTests {
     func `Provider initialization`() {
         let provider = LMStudioProvider(
             baseURL: "http://localhost:1234/v1",
-            modelId: "gpt-oss-120b",
+            modelId: "openai/gpt-oss-120b",
             apiKey: nil,
         )
 
@@ -18,7 +18,7 @@ struct LMStudioProviderTests {
         let capabilities = provider.capabilities
 
         #expect(baseURL == "http://localhost:1234/v1")
-        #expect(modelId == "gpt-oss-120b")
+        #expect(modelId == "openai/gpt-oss-120b")
         #expect(apiKey == nil)
         #expect(capabilities.supportsTools == true)
         #expect(capabilities.supportsStreaming == true)
@@ -28,11 +28,11 @@ struct LMStudioProviderTests {
     func `Model enum integration`() {
         let model1 = LanguageModel.lmstudio(.gptOSS120B)
         let model2 = LanguageModel.lmstudio(.gptOSS20B)
-        let model3 = LanguageModel.lmstudio(.current)
+        let model3 = LanguageModel.lmstudio(.llama3370B)
 
-        #expect(model1.modelId == "gpt-oss-120b")
-        #expect(model2.modelId == "gpt-oss-20b")
-        #expect(model3.modelId == "current")
+        #expect(model1.modelId == "openai/gpt-oss-120b")
+        #expect(model2.modelId == "openai/gpt-oss-20b")
+        #expect(model3.modelId == "meta/llama-3.3-70b")
 
         #expect(model1.supportsTools == true)
         #expect(model1.contextLength == 128_000)
@@ -47,7 +47,7 @@ struct LMStudioProviderTests {
         #expect(model2.providerName == "LMStudio")
 
         #expect(model1.modelId == "gpt-oss:120b")
-        #expect(model2.modelId == "gpt-oss-120b")
+        #expect(model2.modelId == "openai/gpt-oss-120b")
     }
 
     @Test
@@ -59,7 +59,7 @@ struct LMStudioProviderTests {
         let provider = try ProviderFactory.createProvider(for: model, configuration: config)
 
         let modelId = provider.modelId
-        #expect(modelId == "gpt-oss-120b")
+        #expect(modelId == "openai/gpt-oss-120b")
 
         // Should work without API key (local model)
         #expect(provider is LMStudioProvider)

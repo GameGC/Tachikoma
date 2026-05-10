@@ -35,7 +35,10 @@ public struct ModelSelector {
             return .grok(grokModel)
         }
 
-        if Self.isUnsupportedLegacyOpenAIModel(normalized) || Self.isUnsupportedLegacyAnthropicModel(normalized) {
+        if Self.isUnsupportedLegacyOpenAIModel(normalized) ||
+            Self.isUnsupportedLegacyAnthropicModel(normalized) ||
+            Self.isUnsupportedLegacyGrokModel(normalized)
+        {
             throw ModelValidationError.unsupportedModel(modelString)
         }
 
@@ -77,20 +80,13 @@ public struct ModelSelector {
             return .gpt5Mini
         case "gpt-5.5-nano", "gpt5.5-nano", "gpt55-nano", "gpt55nano", "gpt-5-5-nano", "gpt5-5-nano":
             return .gpt5Nano
-        // GPT-5.2 models
-        case "gpt-5.2", "gpt5.2", "gpt-5-2", "gpt5-2", "gpt52":
-            return .gpt52
-        case "gpt-5.2-mini", "gpt5.2-mini", "gpt52-mini", "gpt52mini", "gpt-5-2-mini", "gpt5-2-mini":
-            return .gpt5Mini
-        case "gpt-5.2-nano", "gpt5.2-nano", "gpt52-nano", "gpt52nano", "gpt-5-2-nano", "gpt5-2-nano":
-            return .gpt5Nano
-        // GPT-5.1 models (latest)
-        case "gpt-5.1", "gpt5.1", "gpt-5-1", "gpt5-1", "gpt51":
-            return .gpt51
-        case "gpt-5.1-mini", "gpt5.1-mini", "gpt51-mini", "gpt51mini", "gpt-5-1-mini", "gpt5-1-mini":
-            return .gpt5Mini
-        case "gpt-5.1-nano", "gpt5.1-nano", "gpt51-nano", "gpt51nano", "gpt-5-1-nano", "gpt5-1-nano":
-            return .gpt5Nano
+        // GPT-5.4 models
+        case "gpt-5.4", "gpt5.4", "gpt-5-4", "gpt5-4", "gpt54":
+            return .gpt54
+        case "gpt-5.4-mini", "gpt5.4-mini", "gpt54-mini", "gpt54mini", "gpt-5-4-mini", "gpt5-4-mini":
+            return .gpt54Mini
+        case "gpt-5.4-nano", "gpt5.4-nano", "gpt54-nano", "gpt54nano", "gpt-5-4-nano", "gpt5-4-nano":
+            return .gpt54Nano
         // GPT-5 models
         case "gpt-5", "gpt5":
             return .gpt5
@@ -100,14 +96,6 @@ public struct ModelSelector {
             return .gpt5Mini
         case "gpt-5-nano", "gpt5-nano", "gpt5nano":
             return .gpt5Nano
-        case "gpt-5-thinking", "gpt5-thinking", "gpt5thinking":
-            return .gpt5Thinking
-        case "gpt-5-thinking-mini", "gpt5-thinking-mini", "gpt5thinkingmini":
-            return .gpt5ThinkingMini
-        case "gpt-5-thinking-nano", "gpt5-thinking-nano", "gpt5thinkingnano":
-            return .gpt5ThinkingNano
-        case "gpt-5-chat-latest", "gpt5-chat-latest":
-            return .gpt5ChatLatest
         // Shortcuts
         case "gpt":
             return .gpt55 // Default to flagship GPT-5.5
@@ -128,18 +116,12 @@ public struct ModelSelector {
     private static func parseAnthropicModel(_ input: String) -> Model.Anthropic? {
         switch input {
         // Direct matches
-        case "claude-opus-4-20250514":
-            return .opus4
-        case "claude-opus-4-20250514-thinking":
-            return .opus4Thinking
         case "claude-opus-4-7", "claude-opus-4.7", "opus-4-7", "opus-4.7", "opus47":
             return .opus47
         case "claude-opus-4-5", "claude-opus-4.5", "opus-4-5", "opus-4.5", "opus45":
             return .opus45
-        case "claude-sonnet-4-20250514":
-            return .sonnet4
-        case "claude-sonnet-4-20250514-thinking":
-            return .sonnet4Thinking
+        case "claude-sonnet-4-6", "claude-sonnet-4.6", "sonnet-4-6", "sonnet-4.6", "sonnet46":
+            return .sonnet46
         case "claude-sonnet-4-5-20250929", "claude-sonnet-4.5":
             return .sonnet45
         // Shortcuts
@@ -148,7 +130,7 @@ public struct ModelSelector {
         case "claude-opus", "opus":
             return .opus47
         case "claude-sonnet", "sonnet":
-            return .sonnet4
+            return .sonnet46
         case "claude-haiku", "haiku":
             return .haiku45
         case "anthropic":
@@ -170,17 +152,28 @@ public struct ModelSelector {
         let compact = normalized.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")
         return normalized.hasPrefix("gpt-4") || compact.hasPrefix("gpt4") ||
             normalized.hasPrefix("gpt-3") || compact.hasPrefix("gpt3") ||
-            normalized.hasPrefix("o3") || normalized.hasPrefix("o4")
+            normalized.hasPrefix("o3") || normalized.hasPrefix("o4") ||
+            normalized.hasPrefix("gpt-5.1") || normalized.hasPrefix("gpt-5.2") ||
+            compact.hasPrefix("gpt51") || compact.hasPrefix("gpt52") ||
+            normalized.contains("gpt-5-thinking") || compact.contains("gpt5thinking") ||
+            normalized == "gpt-5-chat-latest" || compact == "gpt5chatlatest"
     }
 
     private static func isUnsupportedLegacyAnthropicModel(_ input: String) -> Bool {
         let normalized = input.lowercased()
         let compact = normalized.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")
-        return normalized.hasPrefix("claude-3") || compact.hasPrefix("claude3")
+        return normalized.hasPrefix("claude-3") || compact.hasPrefix("claude3") ||
+            normalized == "claude-opus-4-20250514" ||
+            normalized == "claude-sonnet-4-20250514" ||
+            normalized.contains("-thinking")
     }
 
     private static func parseGoogleModel(_ input: String) -> Model.Google? {
         switch input {
+        case "gemini-3.1-pro-preview", "gemini-3.1-pro", "gemini31pro", "gemini31propreview":
+            .gemini31ProPreview
+        case "gemini-3.1-flash-lite", "gemini31flashlite", "gemini-3.1-flashlite":
+            .gemini31FlashLite
         case "gemini-3-flash", "gemini-3-flash-preview", "gemini3flash", "gemini-3flash":
             .gemini3Flash
         case "gemini-2.5-pro", "gemini25pro", "gemini2.5pro":
@@ -190,9 +183,9 @@ public struct ModelSelector {
         case "gemini-2.5-flash-lite", "gemini25flashlite", "gemini-2.5-flashlite":
             .gemini25FlashLite
         case "gemini":
-            .gemini3Flash
+            .gemini31ProPreview
         case "google":
-            .gemini25Pro
+            .gemini31ProPreview
         default:
             nil
         }
@@ -201,40 +194,40 @@ public struct ModelSelector {
     private static func parseGrokModel(_ input: String) -> Model.Grok? {
         switch input {
         // Direct matches for available models only
-        case "grok-4-0709":
-            return .grok4
-        case "grok-4-fast-reasoning":
-            return .grok4FastReasoning
-        case "grok-4-fast-non-reasoning":
-            return .grok4FastNonReasoning
-        case "grok-code-fast-1":
-            return .grokCodeFast1
-        case "grok-3", "grok3":
-            return .grok3
-        case "grok-3-mini":
-            return .grok3Mini
-        case "grok-2-1212", "grok-2":
-            return .grok2
-        case "grok-2-vision-1212":
-            return .grok2Vision
-        case "grok-2-image-1212":
-            return .grok2Image
-        case "grok-vision-beta":
-            return .grokVisionBeta
-        case "grok-beta":
-            return .grokBeta
+        case "grok-4.3", "grok-4-3", "grok43", "grok-latest":
+            return .grok43
+        case "grok-4.20-multi-agent-0309", "grok-4-20-multi-agent-0309":
+            return .grok420MultiAgent
+        case "grok-4.20-0309-reasoning", "grok-4-20-0309-reasoning":
+            return .grok420Reasoning
+        case "grok-4.20-0309-non-reasoning", "grok-4-20-0309-non-reasoning":
+            return .grok420NonReasoning
         // Shortcuts
         case "grok":
-            return .grok4FastReasoning // Default to the latest fast Grok model
+            return .grok43
         case "xai":
-            return .grok3 // Default xAI model
+            return .grok43
         default:
             // Check if it's a Grok model ID
+            if Self.isUnsupportedLegacyGrokModel(input) {
+                return nil
+            }
             if input.hasPrefix("grok") {
                 return .custom(input)
             }
             return nil
         }
+    }
+
+    private static func isUnsupportedLegacyGrokModel(_ input: String) -> Bool {
+        let normalized = input.lowercased()
+        return normalized.hasPrefix("grok-2") ||
+            normalized.hasPrefix("grok-3") ||
+            normalized == "grok-4-0709" ||
+            normalized.hasPrefix("grok-4-fast") ||
+            normalized.hasPrefix("grok-code-fast") ||
+            normalized.contains("grok-beta") ||
+            normalized.contains("grok-vision-beta")
     }
 
     private static func parseOllamaModel(_ input: String) -> Model.Ollama? {
@@ -258,22 +251,12 @@ public struct ModelSelector {
             .qwen25vl7b
         case "qwen2.5vl:32b":
             .qwen25vl32b
-        case "llama2", "llama2:latest":
-            .llama2
         case "llama4", "llama4:latest":
             .llama4
-        case "codellama", "codellama:latest":
-            .codellama
         case "mistral", "mistral:latest":
             .mistral
         case "mistral-nemo", "mistral-nemo:latest":
             .mistralNemo
-        case "mixtral", "mixtral:latest":
-            .mixtral
-        case "neural-chat", "neural-chat:latest":
-            .neuralChat
-        case "gemma", "gemma:latest":
-            .gemma
         case "devstral", "devstral:latest":
             .devstral
         case "deepseek-r1:8b":
@@ -410,8 +393,8 @@ public func getAllAvailableModels() -> String {
     output += "\nShortcuts:\n"
     output += "  • claude, claude-opus, opus → claude-opus-4-7\n"
     output += "  • gpt → gpt-5.5\n"
-    output += "  • gemini → gemini-3-flash\n"
-    output += "  • grok → grok-4-fast-reasoning\n"
+    output += "  • gemini → gemini-3.1-pro-preview\n"
+    output += "  • grok → grok-4.3\n"
     output += "  • llama, llama3 → llama3.3\n"
 
     output += "\nCustom Models:\n"
@@ -443,15 +426,15 @@ extension ModelSelector {
         // Get recommended models for specific use cases
         switch useCase {
         case .coding:
-            [.claude, .openai(.gpt55), .google(.gemini25Pro)]
+            [.claude, .openai(.gpt55), .google(.gemini31ProPreview)]
         case .vision:
-            [.claude, .openai(.gpt55), .google(.gemini3Flash)]
+            [.claude, .openai(.gpt55), .google(.gemini31ProPreview)]
         case .reasoning:
-            [.openai(.gpt5Mini), .claude, .google(.gemini25Pro)]
+            [.openai(.gpt54), .claude, .google(.gemini31ProPreview)]
         case .local:
             [.llama, .ollama(.mistralNemo), .ollama(.commandRPlus)]
         case .general:
-            [.claude, .openai(.gpt55), .google(.gemini3Flash), .grok(.grok4FastReasoning), .llama]
+            [.claude, .openai(.gpt55), .google(.gemini31ProPreview), .grok(.grok43), .llama]
         }
     }
 }

@@ -57,17 +57,17 @@ extension TachikomaExamples {
 
         // OpenAI models
         let gpt55 = Model.openai(.gpt55)
-        let gpt52 = Model.openai(.gpt52)
+        let gpt54 = Model.openai(.gpt54)
         let gpt5Mini = Model.openai(.gpt5Mini)
 
         // Anthropic models
         let opus4 = Model.anthropic(.opus4)
-        let sonnet4 = Model.anthropic(.sonnet4)
+        let sonnet46 = Model.anthropic(.sonnet46)
         let haiku45 = Model.anthropic(.haiku45)
 
         // Grok models
-        let grok4 = Model.grok(.grok4FastReasoning)
-        let grok2Vision = Model.grok(.grok2Vision)
+        let grok43 = Model.grok(.grok43)
+        let grokReasoning = Model.grok(.grok420Reasoning)
 
         // Ollama models
         let llama33 = Model.ollama(.llama3_3)
@@ -79,13 +79,13 @@ extension TachikomaExamples {
 
         let models = [
             gpt55,
-            gpt52,
+            gpt54,
             gpt5Mini,
             opus4,
-            sonnet4,
+            sonnet46,
             haiku45,
-            grok4,
-            grok2Vision,
+            grok43,
+            grokReasoning,
             llama33,
             llava,
             openRouter,
@@ -102,7 +102,7 @@ extension TachikomaExamples {
         print("\nModel capabilities:")
         print("  • Vision support: \(gpt55.supportsVision)")
         print("  • Tool support: \(opus4.supportsTools)")
-        print("  • Streaming support: \(sonnet4.supportsStreaming)")
+        print("  • Streaming support: \(sonnet46.supportsStreaming)")
     }
 }
 
@@ -275,7 +275,7 @@ extension TachikomaExamples {
         let models: [(String, Model)] = [
             ("OpenAI GPT-5.5", .openai(.gpt55)),
             ("Anthropic Opus 4", .anthropic(.opus4)),
-            ("Grok 4 Fast", .grok(.grok4FastReasoning)),
+            ("Grok 4.3", .grok(.grok43)),
             ("Ollama Llama 3.3", .ollama(.llama3_3)),
         ]
 
@@ -319,7 +319,7 @@ extension String {
 extension Model {
     var supportsVision: Bool {
         switch self {
-        case .openai(.gpt55), .grok(.grok2Vision), .ollama(.llava):
+        case .openai(.gpt55), .ollama(.llava):
             true
         default:
             false

@@ -167,17 +167,17 @@ final class Agent {
                  .gpt5Pro,
                  .gpt5Mini,
                  .gpt5Nano,
-                 .gpt5Thinking,
-                 .gpt5ThinkingMini,
-                 .gpt5ThinkingNano,
-                 .gpt5ChatLatest:
+                 .gpt55,
+                 .gpt54,
+                 .gpt54Mini,
+                 .gpt54Nano:
                 true
             default:
                 false
             }
         case let .anthropic(anthropicModel):
             switch anthropicModel {
-            case .opus4Thinking, .sonnet4Thinking:
+            case .opus47, .opus45, .opus4, .sonnet46, .sonnet45:
                 true
             default:
                 false

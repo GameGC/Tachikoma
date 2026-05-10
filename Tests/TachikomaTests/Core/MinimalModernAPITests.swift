@@ -11,7 +11,7 @@ struct MinimalModernAPITests {
         // Test that model enums can be constructed
         let openaiModel = Model.openai(.gpt55)
         let anthropicModel = Model.anthropic(.opus47)
-        _ = Model.grok(.grok4)
+        _ = Model.grok(.grok43)
         _ = Model.ollama(.llama33)
 
         // Test that they can be used in a switch statement

@@ -575,7 +575,7 @@ struct TKProviderValidator {
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
             request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
             request.httpBody = try? JSONSerialization.data(withJSONObject: [
-                "model": "claude-haiku-4.5",
+                "model": "claude-haiku-4-5",
                 "max_tokens": 1,
                 "messages": [
                     ["role": "user", "content": "ping"],

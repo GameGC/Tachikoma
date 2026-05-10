@@ -18,16 +18,13 @@ public struct ProviderFactory {
             // Use Responses API for the GPT-5 family
             switch openaiModel {
             case .gpt55,
-                 .gpt52,
-                 .gpt51,
+                 .gpt54,
+                 .gpt54Mini,
+                 .gpt54Nano,
                  .gpt5,
                  .gpt5Pro,
                  .gpt5Mini,
-                 .gpt5Nano,
-                 .gpt5Thinking,
-                 .gpt5ThinkingMini,
-                 .gpt5ThinkingNano,
-                 .gpt5ChatLatest:
+                 .gpt5Nano:
                 return try OpenAIResponsesProvider(model: openaiModel, configuration: configuration)
             default:
                 return try OpenAIProvider(model: openaiModel, configuration: configuration)
