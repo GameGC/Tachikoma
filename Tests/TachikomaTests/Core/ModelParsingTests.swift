@@ -114,7 +114,8 @@ struct ModelParsingTests {
             let model = ProviderParser.determineDefaultModel(
                 from: "google/gemini-3.1-pro-preview",
                 hasOpenAI: false,
-                hasAnthropic: false)
+                hasAnthropic: false,
+            )
 
             #expect(model == .google(.gemini31ProPreview))
         }
@@ -126,7 +127,8 @@ struct ModelParsingTests {
             let model = ProviderParser.determineDefaultModel(
                 from: "",
                 hasOpenAI: false,
-                hasAnthropic: false)
+                hasAnthropic: false,
+            )
 
             #expect(model == .ollama(.llama33))
         }

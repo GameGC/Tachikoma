@@ -226,8 +226,8 @@ public enum ProviderParser {
             !normalized.hasPrefix("gpt-5.1"), !compact.hasPrefix("gpt51"),
             !normalized.hasPrefix("gpt-5.2"), !compact.hasPrefix("gpt52"),
             !normalized.contains("gpt-5-thinking"), !compact.contains("gpt5thinking"),
-            normalized != "gpt-5-chat-latest", compact != "gpt5chatlatest"
-        else {
+            normalized != "gpt-5-chat-latest", compact != "gpt5chatlatest" else
+        {
             return nil
         }
 
@@ -255,11 +255,12 @@ public enum ProviderParser {
     private static func parseAnthropicModel(_ modelString: String) -> LanguageModel? {
         let normalized = modelString.lowercased()
         let compact = normalized.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")
-        guard !normalized.hasPrefix("claude-3"), !compact.hasPrefix("claude3"),
-              normalized != "claude-opus-4-20250514",
-              normalized != "claude-sonnet-4-20250514",
-              !normalized.contains("-thinking")
-        else {
+        guard
+            !normalized.hasPrefix("claude-3"), !compact.hasPrefix("claude3"),
+            normalized != "claude-opus-4-20250514",
+            normalized != "claude-sonnet-4-20250514",
+            !normalized.contains("-thinking") else
+        {
             return nil
         }
 

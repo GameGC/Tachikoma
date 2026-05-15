@@ -40,7 +40,8 @@ public struct ModelSelector {
             return .grok(grokModel)
         }
 
-        if Self.isUnsupportedLegacyOpenAIModel(normalized) ||
+        if
+            Self.isUnsupportedLegacyOpenAIModel(normalized) ||
             Self.isUnsupportedLegacyAnthropicModel(normalized) ||
             Self.isUnsupportedLegacyGrokModel(normalized)
         {
@@ -113,7 +114,7 @@ public struct ModelSelector {
             return .gpt55 // Default to GPT-5.5
         default:
             // Check if it's an OpenAI model ID
-            if Self.isUnsupportedLegacyOpenAIModel(input) {
+            if self.isUnsupportedLegacyOpenAIModel(input) {
                 return nil
             }
             if input.hasPrefix("gpt-5") || input.hasPrefix("gpt5") {
@@ -147,7 +148,7 @@ public struct ModelSelector {
             return .opus47 // Default Anthropic model
         default:
             // Check if it's a Claude model ID
-            if Self.isUnsupportedLegacyAnthropicModel(input) {
+            if self.isUnsupportedLegacyAnthropicModel(input) {
                 return nil
             }
             if input.hasPrefix("claude") {
@@ -219,7 +220,7 @@ public struct ModelSelector {
             return .grok43
         default:
             // Check if it's a Grok model ID
-            if Self.isUnsupportedLegacyGrokModel(input) {
+            if self.isUnsupportedLegacyGrokModel(input) {
                 return nil
             }
             if input.hasPrefix("grok") {
@@ -233,15 +234,15 @@ public struct ModelSelector {
         switch input {
         case "minimax-m2.7", "minimax-m2-7", "m2.7", "m2-7", "minimax/m2.7", "minimax/m2-7",
              "minimax/minimax-m2.7", "minimax/minimax-m2-7":
-            return .m27
+            .m27
         case "minimax-m2.7-highspeed", "minimax-m2-7-highspeed", "m2.7-highspeed", "m2-7-highspeed",
              "minimax/m2.7-highspeed", "minimax/m2-7-highspeed", "minimax/minimax-m2.7-highspeed",
              "minimax/minimax-m2-7-highspeed":
-            return .m27Highspeed
+            .m27Highspeed
         case "minimax":
-            return .m27
+            .m27
         default:
-            return nil
+            nil
         }
     }
 

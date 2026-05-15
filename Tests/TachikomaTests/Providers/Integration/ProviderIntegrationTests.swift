@@ -45,8 +45,8 @@ struct ProviderIntegrationTests {
                 key != "env-key",
                 key != "cred-key",
                 key != "test-key",
-                !lowercased.hasPrefix("test-")
-            else {
+                !lowercased.hasPrefix("test-") else
+            {
                 return nil
             }
             return key
@@ -56,27 +56,27 @@ struct ProviderIntegrationTests {
     private static let liveCredentials = LiveCredentials.capture()
 
     private static var hasOpenAIKey: Bool {
-        Self.liveCredentials.openAI != nil
+        liveCredentials.openAI != nil
     }
 
     private static var hasAnthropicKey: Bool {
-        Self.liveCredentials.anthropic != nil
+        liveCredentials.anthropic != nil
     }
 
     private static var hasGoogleKey: Bool {
-        Self.liveCredentials.google != nil
+        liveCredentials.google != nil
     }
 
     private static var hasMistralKey: Bool {
-        Self.liveCredentials.mistral != nil
+        liveCredentials.mistral != nil
     }
 
     private static var hasGroqKey: Bool {
-        Self.liveCredentials.groq != nil
+        liveCredentials.groq != nil
     }
 
     private static var hasGrokKey: Bool {
-        Self.liveCredentials.grok != nil
+        liveCredentials.grok != nil
     }
 
     private static func liveConfiguration() -> TachikomaConfiguration {

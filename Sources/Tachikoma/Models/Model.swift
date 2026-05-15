@@ -591,7 +591,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         case gptOSS120B
         case gptOSS20B
 
-        // Common local models
+        /// Common local models
         case llama3370B
 
         /// Custom model path
@@ -1062,20 +1062,23 @@ extension LanguageModel {
         let trimmed = modelString.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
 
-        if let qualified = ProviderParser.parse(trimmed),
-           qualified.provider.lowercased() == "ollama"
+        if
+            let qualified = ProviderParser.parse(trimmed),
+            qualified.provider.lowercased() == "ollama"
         {
             return .ollama(Self.parseOllamaModelIdentifier(qualified.model))
         }
 
-        if let qualified = ProviderParser.parse(trimmed),
-           ["lmstudio", "lm-studio"].contains(qualified.provider.lowercased())
+        if
+            let qualified = ProviderParser.parse(trimmed),
+            ["lmstudio", "lm-studio"].contains(qualified.provider.lowercased())
         {
             return .lmstudio(Self.parseLMStudioModelIdentifier(qualified.model))
         }
 
-        if let qualified = ProviderParser.parse(trimmed),
-           qualified.provider.lowercased() == "minimax"
+        if
+            let qualified = ProviderParser.parse(trimmed),
+            qualified.provider.lowercased() == "minimax"
         {
             return Self.parseMiniMaxModelIdentifier(qualified.model).map(LanguageModel.minimax)
         }
@@ -1087,7 +1090,8 @@ extension LanguageModel {
 
         // MARK: OpenAI models
 
-        if compact.contains("gpt4") || compact.contains("gpt3") || compact.contains("o3") || compact.contains("o4") ||
+        if
+            compact.contains("gpt4") || compact.contains("gpt3") || compact.contains("o3") || compact.contains("o4") ||
             compact.contains("gpt51") || compact.contains("gpt52") ||
             compact.contains("gpt5thinking") || compact.contains("gpt5chat")
         {

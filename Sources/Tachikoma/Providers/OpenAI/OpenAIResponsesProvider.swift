@@ -920,7 +920,7 @@ public final class OpenAIResponsesProvider: ModelProvider {
         }
     }
 
-    private static func isReasoningModel(_ model: LanguageModel.OpenAI) -> Bool {
+    private static func isReasoningModel(_: LanguageModel.OpenAI) -> Bool {
         false
     }
 

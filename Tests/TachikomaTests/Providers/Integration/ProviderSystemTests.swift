@@ -105,7 +105,9 @@ struct ProviderSystemTests {
             defer {
                 if let previousOpenAI { setenv("OPENAI_API_KEY", previousOpenAI, 1) }
                 if let previousAnthropic { setenv("ANTHROPIC_API_KEY", previousAnthropic, 1) }
-                if let previousMiniMax { setenv("MINIMAX_API_KEY", previousMiniMax, 1) } else { unsetenv("MINIMAX_API_KEY") }
+                // swiftlint:disable:next statement_position
+                if let previousMiniMax { setenv("MINIMAX_API_KEY", previousMiniMax, 1) }
+                else { unsetenv("MINIMAX_API_KEY") }
                 if let previousAnthropicCompatible {
                     setenv("ANTHROPIC_COMPATIBLE_API_KEY", previousAnthropicCompatible, 1)
                 } else {
