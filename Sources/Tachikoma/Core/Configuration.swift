@@ -19,20 +19,48 @@ public final class TachikomaConfiguration: @unchecked Sendable {
 
     public static var profileDirectoryPath: String {
         let profile = self.profileDirectoryName
-        if profile.hasPrefix("/") || profile.hasPrefix("~") {
+        if self.isAbsoluteProfilePath(profile) || profile.hasPrefix("~") {
             return NSString(string: profile).expandingTildeInPath
         }
 
-        #if os(Windows)
-        let homeDirectory = ProcessInfo.processInfo.environment["USERPROFILE"] ??
-            (ProcessInfo.processInfo.environment["HOMEDRIVE"] ?? "" +
-                (ProcessInfo.processInfo.environment["HOMEPATH"] ?? ""))
-        return homeDirectory.isEmpty ? profile : "\(homeDirectory)/\(profile)"
-        #else
-        guard let homeDirectory = ProcessInfo.processInfo.environment["HOME"] else {
+        guard let homeDirectory = self.homeDirectoryPath else {
             return profile
         }
+
         return "\(homeDirectory)/\(profile)"
+    }
+
+    private static func isAbsoluteProfilePath(_ profile: String) -> Bool {
+        if profile.hasPrefix("/") {
+            return true
+        }
+
+        #if os(Windows)
+        if profile.hasPrefix("\\\\") {
+            return true
+        }
+
+        if profile.count >= 3 {
+            let driveIndex = profile.index(after: profile.startIndex)
+            let separatorIndex = profile.index(after: driveIndex)
+            let drive = profile[profile.startIndex]
+            let separator = profile[separatorIndex]
+            return drive.isASCII && drive.isLetter && profile[driveIndex] == ":" &&
+                (separator == "\\" || separator == "/")
+        }
+        #endif
+
+        return false
+    }
+
+    private static var homeDirectoryPath: String? {
+        #if os(Windows)
+        let homeDirectory = ProcessInfo.processInfo.environment["USERPROFILE"] ??
+            ((ProcessInfo.processInfo.environment["HOMEDRIVE"] ?? "") +
+                (ProcessInfo.processInfo.environment["HOMEPATH"] ?? ""))
+        return homeDirectory.isEmpty ? nil : homeDirectory
+        #else
+        return ProcessInfo.processInfo.environment["HOME"]
         #endif
     }
 
@@ -335,20 +363,10 @@ public final class TachikomaConfiguration: @unchecked Sendable {
         // Primary: configured profile directory/path (e.g. .peekaboo or PEEKABOO_CONFIG_DIR)
         let primaryCredentialsPath = "\(Self.profileDirectoryPath)/credentials"
 
-        #if os(Windows)
-        let homeDirectory = ProcessInfo.processInfo.environment["USERPROFILE"] ??
-            (ProcessInfo.processInfo.environment["HOMEDRIVE"] ?? "" +
-                (ProcessInfo.processInfo.environment["HOMEPATH"] ?? ""))
-        guard !homeDirectory.isEmpty else { return }
-        #else
-        guard let homeDirectory = ProcessInfo.processInfo.environment["HOME"] else {
-            return
-        }
-        #endif
         // Fallback: legacy .tachikoma directory for non-Peekaboo users
-        let fallbackCredentialsPath = "\(homeDirectory)/.tachikoma/credentials"
+        let fallbackCredentialsPath = Self.homeDirectoryPath.map { "\($0)/.tachikoma/credentials" }
 
-        let candidates = [primaryCredentialsPath, fallbackCredentialsPath]
+        let candidates = [primaryCredentialsPath, fallbackCredentialsPath].compactMap(\.self)
         let credentialsPath = candidates.first { FileManager.default.fileExists(atPath: $0) }
         guard let path = credentialsPath else { return }
         let credentialsURL = URL(fileURLWithPath: path)
