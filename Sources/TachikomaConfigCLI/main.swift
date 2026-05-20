@@ -116,7 +116,7 @@ struct TKConfigCLI {
         var mutable = raw
         let timeout = self.parseTimeout(&mutable)
         print("Providers:")
-        for pid in [TKProviderId.openai, .anthropic, .grok, .gemini] {
+        for pid in [TKProviderId.openai, .anthropic, .grok, .gemini, .openrouter] {
             let status = await TKConfigCLI.status(for: pid, timeout: timeout)
             print("  \(pid.displayName): \(status)")
         }
@@ -150,6 +150,8 @@ struct TKConfigCLI {
             }
         case .gemini:
             if let v = env["GEMINI_API_KEY"], !v.isEmpty { return ("GEMINI_API_KEY", v) }
+        case .openrouter:
+            if let v = env["OPENROUTER_API_KEY"], !v.isEmpty { return ("OPENROUTER_API_KEY", v) }
         }
         return nil
     }
@@ -169,6 +171,8 @@ struct TKConfigCLI {
             }
         case .gemini:
             if let v = manager.credentialValue(for: "GEMINI_API_KEY") { return ("GEMINI_API_KEY", v) }
+        case .openrouter:
+            if let v = manager.credentialValue(for: "OPENROUTER_API_KEY") { return ("OPENROUTER_API_KEY", v) }
         }
         return nil
     }

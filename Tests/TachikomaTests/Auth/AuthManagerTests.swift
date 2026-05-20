@@ -44,6 +44,7 @@ struct AuthManagerTests {
         unsetenv("ANTHROPIC_ACCESS_TOKEN")
         unsetenv("GEMINI_API_KEY")
         unsetenv("GOOGLE_API_KEY")
+        unsetenv("OPENROUTER_API_KEY")
     }
 
     @Test
@@ -76,6 +77,29 @@ struct AuthManagerTests {
                 return
             }
             #expect(token == "alias-key")
+        }
+    }
+
+    @Test
+    func `openrouter resolves env and credential keys as bearer auth`() async throws {
+        try await self.withIsolatedAuthState {
+            self.resetAuthEnv()
+            try TKAuthManager.shared.setCredential(key: "OPENROUTER_API_KEY", value: "credential-openrouter-key")
+
+            guard case let .bearer(credentialToken, _)? = TKAuthManager.shared.resolveAuth(for: .openrouter) else {
+                Issue.record("Expected OpenRouter bearer auth from credentials")
+                return
+            }
+            #expect(credentialToken == "credential-openrouter-key")
+
+            setenv("OPENROUTER_API_KEY", "env-openrouter-key", 1)
+            defer { unsetenv("OPENROUTER_API_KEY") }
+
+            guard case let .bearer(envToken, _)? = TKAuthManager.shared.resolveAuth(for: .openrouter) else {
+                Issue.record("Expected OpenRouter bearer auth from environment")
+                return
+            }
+            #expect(envToken == "env-openrouter-key")
         }
     }
 

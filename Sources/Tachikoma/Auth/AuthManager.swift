@@ -25,6 +25,7 @@ public enum TKProviderId: String, CaseIterable, Sendable {
     case anthropic
     case grok
     case gemini
+    case openrouter
 
     public static func normalize(_ value: String) -> TKProviderId? {
         let lower = value.lowercased()
@@ -38,6 +39,7 @@ public enum TKProviderId: String, CaseIterable, Sendable {
         case .anthropic: "Anthropic"
         case .grok: "Grok (xAI)"
         case .gemini: "Gemini"
+        case .openrouter: "OpenRouter"
         }
     }
 
@@ -55,6 +57,7 @@ public enum TKProviderId: String, CaseIterable, Sendable {
         // swiftformat:enable indent
         case .grok: ["X_AI_API_KEY", "XAI_API_KEY", "GROK_API_KEY"]
         case .gemini: ["GEMINI_API_KEY"]
+        case .openrouter: ["OPENROUTER_API_KEY"]
         }
     }
 
@@ -215,6 +218,13 @@ public final class TKAuthManager {
                 return .apiKey(env)
             }
             if let val = creds["GEMINI_API_KEY"], !val.isEmpty { return .apiKey(val) }
+        case .openrouter:
+            if let env = self.environmentValue(for: "OPENROUTER_API_KEY") {
+                return .bearer(env, betaHeader: nil)
+            }
+            if let val = creds["OPENROUTER_API_KEY"], !val.isEmpty {
+                return .bearer(val, betaHeader: nil)
+            }
         }
         return nil
     }
@@ -310,7 +320,7 @@ public final class TKAuthManager {
                 requiresStateInTokenExchange: true,
                 pkce: pkce,
             )
-        case .grok, .gemini:
+        case .grok, .gemini, .openrouter:
             OAuthConfig(
                 prefix: "",
                 authorize: "",
@@ -593,6 +603,13 @@ struct TKProviderValidator {
             var request = URLRequest(url: URL(string: url)!)
             request.httpMethod = "GET"
             return await HTTP.perform(request: request, timeoutSeconds: self.timeoutSeconds)
+        case .openrouter:
+            return await self.validateBearer(
+                url: "https://openrouter.ai/api/v1/key",
+                secret: secret,
+                header: "Authorization",
+                valuePrefix: "Bearer ",
+            )
         }
     }
 

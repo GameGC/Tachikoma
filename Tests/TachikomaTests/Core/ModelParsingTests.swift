@@ -75,6 +75,13 @@ struct ModelParsingTests {
     }
 
     @Test
+    func `parse OpenRouter model ids`() throws {
+        #expect(LanguageModel.parse(from: "openrouter/xiaomi/mimo-v2.5-pro") == .openRouter(modelId: "xiaomi/mimo-v2.5-pro"))
+        #expect(LanguageModel.parse(from: "xiaomi/mimo-v2.5-pro") == .openRouter(modelId: "xiaomi/mimo-v2.5-pro"))
+        #expect(try ModelSelector.parseModel("xiaomi/mimo-v2.5-pro") == .openRouter(modelId: "xiaomi/mimo-v2.5-pro"))
+    }
+
+    @Test
     func `parse custom Ollama Qwen vision model without falling back to Llama`() {
         let parsed = LanguageModel.parse(from: "qwen2.5vl:3b")
         #expect(parsed == .ollama(.custom("qwen2.5vl:3b")))

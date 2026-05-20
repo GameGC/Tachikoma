@@ -53,6 +53,16 @@ public struct ModelSelector {
             return .lmstudio(lmStudioModel)
         }
 
+        if let qualified = ProviderParser.parse(normalized) {
+            let provider = qualified.provider.lowercased()
+            if provider == "openrouter" {
+                return .openRouter(modelId: qualified.model)
+            }
+            if !["ollama", "lmstudio", "lm-studio"].contains(provider) {
+                return .openRouter(modelId: normalized)
+            }
+        }
+
         // Ollama shortcuts and models. Keep after explicit local providers because it accepts custom IDs.
         if let ollamaModel = parseOllamaModel(normalized) {
             return .ollama(ollamaModel)

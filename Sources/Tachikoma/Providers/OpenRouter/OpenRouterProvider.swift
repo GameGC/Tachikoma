@@ -24,6 +24,11 @@ public final class OpenRouterProvider: ModelProvider {
 
         if let key = configuration.getAPIKey(for: .custom("openrouter")) {
             self.apiKey = key
+        } else if let auth = TKAuthManager.shared.resolveAuth(for: .openrouter) {
+            switch auth {
+            case let .apiKey(key), let .bearer(key, _):
+                self.apiKey = key
+            }
         } else {
             throw TachikomaError.authenticationFailed("OPENROUTER_API_KEY not found")
         }
@@ -38,7 +43,7 @@ public final class OpenRouterProvider: ModelProvider {
 
         self.defaultHeaders = [
             "HTTP-Referer": ProcessInfo.processInfo.environment["OPENROUTER_REFERER"] ?? "https://peekaboo.app",
-            "X-Title": ProcessInfo.processInfo.environment["OPENROUTER_TITLE"] ?? "Peekaboo",
+            "X-OpenRouter-Title": ProcessInfo.processInfo.environment["OPENROUTER_TITLE"] ?? "Peekaboo",
         ]
     }
 

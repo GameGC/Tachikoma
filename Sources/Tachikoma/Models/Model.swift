@@ -1083,6 +1083,16 @@ extension LanguageModel {
             return Self.parseMiniMaxModelIdentifier(qualified.model).map(LanguageModel.minimax)
         }
 
+        if let qualified = ProviderParser.parse(trimmed) {
+            let provider = qualified.provider.lowercased()
+            if provider == "openrouter" {
+                return .openRouter(modelId: qualified.model)
+            }
+            if !["openai", "anthropic", "google", "gemini", "grok", "xai"].contains(provider) {
+                return .openRouter(modelId: trimmed)
+            }
+        }
+
         let normalized = trimmed.lowercased()
         let dashed = normalized.replacingOccurrences(of: "_", with: "-")
         let compact = dashed.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")

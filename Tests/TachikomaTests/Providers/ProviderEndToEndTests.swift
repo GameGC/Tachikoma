@@ -252,6 +252,7 @@ struct ProviderEndToEndTests {
         try await NetworkMocking.withMockedNetwork { request in
             self.expectPath(request, endsWith: "/chat/completions")
             #expect(request.value(forHTTPHeaderField: "HTTP-Referer") == "https://peekaboo.app")
+            #expect(request.value(forHTTPHeaderField: "X-OpenRouter-Title") == "Peekaboo")
             return NetworkMocking.jsonResponse(for: request, data: Self.chatCompletionPayload(text: "OpenRouter reply"))
         } operation: {
             let config = Self.makeConfiguration { config in
