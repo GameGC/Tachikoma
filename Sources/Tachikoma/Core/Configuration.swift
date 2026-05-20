@@ -11,11 +11,30 @@ public typealias ProviderFactoryOverride = (LanguageModel, TachikomaConfiguratio
 public final class TachikomaConfiguration: @unchecked Sendable {
     // MARK: - Profile Directory (for config/credentials)
 
-    /// Name of the profile directory under the user's HOME used to store
-    /// configuration and credentials (e.g. \.tachikoma, \.peekaboo).
+    /// Name of the profile directory under the user's HOME, or an absolute path,
+    /// used to store configuration and credentials (e.g. \.tachikoma, \.peekaboo).
     /// Defaults to ".tachikoma". Host applications (like Peekaboo) should set this
-    /// to their own folder name during startup.
+    /// to their own folder/path during startup.
     public nonisolated(unsafe) static var profileDirectoryName: String = ".tachikoma"
+
+    public static var profileDirectoryPath: String {
+        let profile = self.profileDirectoryName
+        if profile.hasPrefix("/") || profile.hasPrefix("~") {
+            return NSString(string: profile).expandingTildeInPath
+        }
+
+        #if os(Windows)
+        let homeDirectory = ProcessInfo.processInfo.environment["USERPROFILE"] ??
+            (ProcessInfo.processInfo.environment["HOMEDRIVE"] ?? "" +
+                (ProcessInfo.processInfo.environment["HOMEPATH"] ?? ""))
+        return homeDirectory.isEmpty ? profile : "\(homeDirectory)/\(profile)"
+        #else
+        guard let homeDirectory = ProcessInfo.processInfo.environment["HOME"] else {
+            return profile
+        }
+        return "\(homeDirectory)/\(profile)"
+        #endif
+    }
 
     private let lock = NSLock()
     private var _apiKeys: [String: String] = [:]
@@ -313,6 +332,9 @@ public final class TachikomaConfiguration: @unchecked Sendable {
     /// Load configuration from credentials file
     private func loadFromCredentials() {
         // Load configuration from credentials file
+        // Primary: configured profile directory/path (e.g. .peekaboo or PEEKABOO_CONFIG_DIR)
+        let primaryCredentialsPath = "\(Self.profileDirectoryPath)/credentials"
+
         #if os(Windows)
         let homeDirectory = ProcessInfo.processInfo.environment["USERPROFILE"] ??
             (ProcessInfo.processInfo.environment["HOMEDRIVE"] ?? "" +
@@ -323,9 +345,6 @@ public final class TachikomaConfiguration: @unchecked Sendable {
             return
         }
         #endif
-
-        // Primary: configured profile directory (e.g. .peekaboo)
-        let primaryCredentialsPath = "\(homeDirectory)/\(Self.profileDirectoryName)/credentials"
         // Fallback: legacy .tachikoma directory for non-Peekaboo users
         let fallbackCredentialsPath = "\(homeDirectory)/.tachikoma/credentials"
 
@@ -379,20 +398,10 @@ public final class TachikomaConfiguration: @unchecked Sendable {
     /// Save current configuration to credentials file
     public func saveCredentials() throws {
         // Save current configuration to credentials file
-        #if os(Windows)
-        let homeDirectory = ProcessInfo.processInfo.environment["USERPROFILE"] ??
-            (ProcessInfo.processInfo.environment["HOMEDRIVE"] ?? "" +
-                (ProcessInfo.processInfo.environment["HOMEPATH"] ?? ""))
-        guard !homeDirectory.isEmpty else {
-            throw TachikomaError.invalidConfiguration("USERPROFILE directory not found")
+        let profileDir = Self.profileDirectoryPath
+        guard !profileDir.isEmpty else {
+            throw TachikomaError.invalidConfiguration("Profile directory not found")
         }
-        #else
-        guard let homeDirectory = ProcessInfo.processInfo.environment["HOME"] else {
-            throw TachikomaError.invalidConfiguration("HOME directory not found")
-        }
-        #endif
-
-        let profileDir = "\(homeDirectory)/\(Self.profileDirectoryName)"
         let credentialsPath = "\(profileDir)/credentials"
 
         // Create directory if needed

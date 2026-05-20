@@ -78,8 +78,7 @@ public struct TKCredentialStore {
     public init() {}
 
     private var baseDir: String {
-        let dir = TachikomaConfiguration.profileDirectoryName
-        return NSString(string: "~/" + dir).expandingTildeInPath
+        TachikomaConfiguration.profileDirectoryPath
     }
 
     private var credentialsPath: String {

@@ -61,12 +61,7 @@ public final class CustomProviderRegistry: @unchecked Sendable {
     // MARK: - Helpers
 
     private static func profileDirectoryPath() -> String {
-        #if os(Windows)
-        let home = ProcessInfo.processInfo.environment["USERPROFILE"] ?? ""
-        #else
-        let home = ProcessInfo.processInfo.environment["HOME"] ?? ""
-        #endif
-        return "\(home)/\(TachikomaConfiguration.profileDirectoryName)"
+        TachikomaConfiguration.profileDirectoryPath
     }
 
     private static func profileConfigPath() -> String {

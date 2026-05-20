@@ -499,12 +499,7 @@ public final class TachikomaMCPClientManager {
     }
 
     private func profileDirectoryPath() -> String {
-        #if os(Windows)
-        let home = ProcessInfo.processInfo.environment["USERPROFILE"] ?? ""
-        #else
-        let home = ProcessInfo.processInfo.environment["HOME"] ?? ""
-        #endif
-        return "\(home)/\(self.profileDirectoryName)"
+        TachikomaConfiguration.profileDirectoryPath
     }
 
     private func profileConfigPath() -> String {
