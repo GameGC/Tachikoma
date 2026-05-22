@@ -76,7 +76,8 @@ struct ModelParsingTests {
 
     @Test
     func `parse OpenRouter model ids`() throws {
-        #expect(LanguageModel.parse(from: "openrouter/xiaomi/mimo-v2.5-pro") == .openRouter(modelId: "xiaomi/mimo-v2.5-pro"))
+        #expect(LanguageModel
+            .parse(from: "openrouter/xiaomi/mimo-v2.5-pro") == .openRouter(modelId: "xiaomi/mimo-v2.5-pro"))
         #expect(LanguageModel.parse(from: "xiaomi/mimo-v2.5-pro") == .openRouter(modelId: "xiaomi/mimo-v2.5-pro"))
         #expect(try ModelSelector.parseModel("xiaomi/mimo-v2.5-pro") == .openRouter(modelId: "xiaomi/mimo-v2.5-pro"))
     }

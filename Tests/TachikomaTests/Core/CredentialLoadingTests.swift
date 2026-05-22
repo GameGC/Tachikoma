@@ -46,7 +46,8 @@ struct CredentialLoadingTests {
                 .appendingPathComponent("tachikoma-absolute-credentials-\(UUID().uuidString)")
                 .path
             let credentialPath = "\(profilePath)/credentials"
-            let savedEnvironment = self.unsetOpenAIEnvironment() + [("HOME", getenv("HOME").map { String(cString: $0) })]
+            let savedHome = getenv("HOME").map { String(cString: $0) }
+            let savedEnvironment = self.unsetOpenAIEnvironment() + [("HOME", savedHome)]
 
             TachikomaConfiguration.profileDirectoryName = profilePath
             try FileManager.default.createDirectory(atPath: profilePath, withIntermediateDirectories: true)

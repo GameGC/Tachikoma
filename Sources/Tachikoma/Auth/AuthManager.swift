@@ -139,8 +139,8 @@ public final class TKAuthManager {
 
     private init() {}
 
-    private func environmentValue(for key: String) -> String? {
-        guard !self.ignoreEnv else { return nil }
+    private func environmentValue(for key: String, ignoringEnvironment: Bool) -> String? {
+        guard !ignoringEnvironment else { return nil }
         let value = key.withCString { keyPtr -> String? in
             guard let cValue = getenv(keyPtr) else { return nil }
             let string = String(cString: cValue)
@@ -149,6 +149,14 @@ public final class TKAuthManager {
         if let value { return value }
         if let value = ProcessInfo.processInfo.environment[key], !value.isEmpty { return value }
         return nil
+    }
+
+    private func authState() -> (ignoreEnv: Bool, creds: [String: String]) {
+        self.lock.lock()
+        let ignoreEnv = self.ignoreEnv
+        let creds = self.ignoreStore ? [:] : self.store.load()
+        self.lock.unlock()
+        return (ignoreEnv, creds)
     }
 
     @discardableResult
@@ -170,20 +178,17 @@ public final class TKAuthManager {
     }
 
     public func credentialValue(for key: String) -> String? {
-        self.lock.lock()
-        let creds = self.ignoreStore ? [:] : self.store.load()
-        self.lock.unlock()
-        if let env = self.environmentValue(for: key) { return env }
-        return creds[key]
+        let state = self.authState()
+        if let env = self.environmentValue(for: key, ignoringEnvironment: state.ignoreEnv) { return env }
+        return state.creds[key]
     }
 
     public func resolveAuth(for provider: TKProviderId) -> TKAuthValue? {
-        self.lock.lock()
-        let creds = self.ignoreStore ? [:] : self.store.load()
-        self.lock.unlock()
+        let state = self.authState()
+        let creds = state.creds
         switch provider {
         case .openai:
-            if let env = self.environmentValue(for: "OPENAI_API_KEY") {
+            if let env = self.environmentValue(for: "OPENAI_API_KEY", ignoringEnvironment: state.ignoreEnv) {
                 return .bearer(env, betaHeader: nil)
             }
             if let access = creds["OPENAI_ACCESS_TOKEN"], !access.isEmpty {
@@ -193,7 +198,7 @@ public final class TKAuthManager {
                 return .apiKey(key)
             }
         case .anthropic:
-            if let env = self.environmentValue(for: "ANTHROPIC_API_KEY") {
+            if let env = self.environmentValue(for: "ANTHROPIC_API_KEY", ignoringEnvironment: state.ignoreEnv) {
                 return .apiKey(env)
             }
             if let access = creds["ANTHROPIC_ACCESS_TOKEN"], !access.isEmpty {
@@ -206,7 +211,7 @@ public final class TKAuthManager {
         case .grok:
             let envOrder = ["X_AI_API_KEY", "XAI_API_KEY", "GROK_API_KEY"]
             for k in envOrder {
-                if let env = self.environmentValue(for: k) {
+                if let env = self.environmentValue(for: k, ignoringEnvironment: state.ignoreEnv) {
                     return .bearer(env, betaHeader: nil)
                 }
             }
@@ -214,12 +219,12 @@ public final class TKAuthManager {
                 if let val = creds[k], !val.isEmpty { return .bearer(val, betaHeader: nil) }
             }
         case .gemini:
-            if let env = self.environmentValue(for: "GEMINI_API_KEY") {
+            if let env = self.environmentValue(for: "GEMINI_API_KEY", ignoringEnvironment: state.ignoreEnv) {
                 return .apiKey(env)
             }
             if let val = creds["GEMINI_API_KEY"], !val.isEmpty { return .apiKey(val) }
         case .openrouter:
-            if let env = self.environmentValue(for: "OPENROUTER_API_KEY") {
+            if let env = self.environmentValue(for: "OPENROUTER_API_KEY", ignoringEnvironment: state.ignoreEnv) {
                 return .bearer(env, betaHeader: nil)
             }
             if let val = creds["OPENROUTER_API_KEY"], !val.isEmpty {

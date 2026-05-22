@@ -14,6 +14,7 @@ All notable changes to the Tachikoma project will be documented in this file.
 
 ### Fixed
 - Ollama model parsing now preserves explicit custom vision model IDs such as `qwen2.5vl:3b` instead of falling back to `llama3.3` (#16).
+- Auth resolution now snapshots environment-ignore state consistently, preventing parallel tests and concurrent callers from falling back to stored OpenRouter credentials when an environment override is present.
 - SwiftPM consumers can now resolve Commander remotely instead of requiring a local `../Commander` checkout. Thanks @malpern.
 - Custom OpenAI-compatible and Anthropic-compatible providers now honor per-provider `options.apiKey` values from profile config. Thanks @381181295.
 - Google/Gemini request encoding now sends tool results as documented user `functionResponse` turns and merges consecutive same-role contents before calling the API. Thanks @hsrvc.
