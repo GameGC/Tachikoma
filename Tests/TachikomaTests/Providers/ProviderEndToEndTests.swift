@@ -191,20 +191,19 @@ struct ProviderEndToEndTests {
             let json = try #require(JSONSerialization.jsonObject(with: body) as? [String: Any])
             let tools = try #require(json["tools"] as? [[String: Any]])
             let declarations = try #require(tools.first?["functionDeclarations"] as? [[String: Any]])
-            let parametersByName = Dictionary(
-                uniqueKeysWithValues: try declarations.map { declaration in
-                    (
-                        try #require(declaration["name"] as? String),
-                        try #require(declaration["parameters"] as? [String: Any])
-                    )
-                },
-            )
+            var parametersByName: [String: [String: Any]] = [:]
+            for declaration in declarations {
+                let name = try #require(declaration["name"] as? String)
+                let parameters = try #require(declaration["parameters"] as? [String: Any])
+                #expect(!parametersByName.keys.contains(name))
+                parametersByName[name] = parameters
+            }
             let searchParameters = try #require(parametersByName["search"])
             let noopParameters = try #require(parametersByName["noop"])
 
-            #expect(searchParameters["properties"] as? [String: Any] != nil)
+            #expect(searchParameters["properties"] is [String: Any])
             #expect(searchParameters["required"] as? [String] == ["query"])
-            #expect(noopParameters["properties"] as? [String: Any] != nil)
+            #expect(noopParameters["properties"] is [String: Any])
             #expect(noopParameters["required"] == nil)
 
             return NetworkMocking.streamResponse(for: request, data: Self.googleStreamPayload(text: "Done"))
