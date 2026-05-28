@@ -1,5 +1,3 @@
-![Tachikoma banner](docs/assets/readme-banner.jpg)
-
 <div align="center">
   <img src="assets/logo.png" width="180" alt="Tachikoma Logo">
 
@@ -11,6 +9,8 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green?style=for-the-badge" alt="MIT License"></a>
   <a href="https://github.com/steipete/Tachikoma/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/steipete/Tachikoma/ci.yml?branch=main&style=for-the-badge&label=tests" alt="CI Status"></a>
 </p>
+
+![Tachikoma banner](docs/assets/readme-banner.jpg)
 
 Modern, Swift-native APIs for text, vision, tools, and realtime voice.
 </div>
