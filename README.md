@@ -1,3 +1,5 @@
+![Tachikoma banner](docs/assets/readme-banner.jpg)
+
 <div align="center">
   <img src="assets/logo.png" width="180" alt="Tachikoma Logo">
 
