@@ -14,7 +14,7 @@ jobs:
   # macOS tests with all Apple platforms
   test-apple-platforms:
     name: Test Apple Platforms
-    runs-on: macos-latest
+    runs-on: macos-15
     strategy:
       fail-fast: false
       matrix:
@@ -118,7 +118,7 @@ jobs:
   # Package validation
   validate-package:
     name: Validate Swift Package
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -150,7 +150,7 @@ jobs:
   # Integration tests with real APIs (optional, requires secrets)
   integration-tests:
     name: Integration Tests
-    runs-on: macos-latest
+    runs-on: macos-15
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
     - name: Checkout

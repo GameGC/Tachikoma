@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-22.04]
+        os: [macos-15, ubuntu-22.04]
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -79,7 +79,7 @@ jobs:
     continue-on-error: true
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-15]
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -120,7 +120,7 @@ jobs:
     # Disabled for now: simulator SDK downloads are slow/flaky and not needed for core validation.
     if: false
     name: Apple Platforms (${{ matrix.platform }})
-    runs-on: macos-latest
+    runs-on: macos-15
     needs: test
     strategy:
       matrix:
@@ -130,7 +130,7 @@ jobs:
 
   lint:
     name: SwiftLint
-    runs-on: macos-latest
+    runs-on: macos-15
     # SwiftLint only runs on macOS
     
     steps:
