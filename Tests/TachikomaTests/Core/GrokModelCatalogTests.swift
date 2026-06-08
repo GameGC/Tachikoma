@@ -46,12 +46,12 @@ struct GrokModelCatalogTests {
     }
 
     @Test
-    func `Current Grok text models do not advertise vision`() {
+    func `Grok model vision support matches current xAI catalog`() {
         self.requireModernPlatforms {
-            for model in Self.catalog {
-                let languageModel = Model.grok(model)
-                #expect(languageModel.supportsVision == false)
-            }
+            #expect(Model.grok(.grok43).supportsVision)
+            #expect(Model.grok(.grok420MultiAgent).supportsVision == false)
+            #expect(Model.grok(.grok420Reasoning).supportsVision == false)
+            #expect(Model.grok(.grok420NonReasoning).supportsVision == false)
         }
     }
 

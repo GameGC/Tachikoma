@@ -141,7 +141,7 @@ struct ProviderSystemTests {
         #expect(Model.anthropic(.opus4).supportsVision == true)
         #expect(Model.anthropic(.sonnet46).supportsVision == true)
 
-        #expect(Model.grok(.grok43).supportsVision == false)
+        #expect(Model.grok(.grok43).supportsVision == true)
 
         #expect(Model.ollama(.llava).supportsVision == true)
         #expect(Model.ollama(.llama33).supportsVision == false)

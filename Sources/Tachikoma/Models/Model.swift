@@ -406,7 +406,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var supportsVision: Bool {
             switch self {
-            case .custom: true // Assume custom models support vision
+            case .grok43, .custom: true
             default: false
             }
         }
