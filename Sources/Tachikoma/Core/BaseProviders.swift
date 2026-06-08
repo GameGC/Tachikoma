@@ -231,7 +231,7 @@ public final class AnthropicProvider: ModelProvider {
         let anthropicRequest = try AnthropicMessageRequest(
             model: modelId,
             maxTokens: validatedSettings.maxTokens ?? 1024,
-            temperature: validatedSettings.temperature,
+            temperature: thinking == nil ? validatedSettings.temperature : nil,
             system: systemMessage,
             messages: messages,
             tools: request.tools?.map { try self.convertToolToAnthropic($0) },

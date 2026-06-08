@@ -205,6 +205,7 @@ struct AnthropicInterleavedDefaultsTests {
 
         let settings = GenerationSettings(
             maxTokens: 64,
+            temperature: 0.7,
             reasoningEffort: .medium,
             providerOptions: .init(anthropic: .init(thinking: .adaptive)),
         )
@@ -221,6 +222,7 @@ struct AnthropicInterleavedDefaultsTests {
         let outputConfig = try #require(json["output_config"] as? [String: Any])
 
         #expect(json["model"] as? String == "claude-sonnet-4-6")
+        #expect(json["temperature"] == nil)
         #expect(thinking["type"] as? String == "adaptive")
         #expect(outputConfig["effort"] as? String == "medium")
     }
