@@ -565,7 +565,11 @@ public struct ModelCostCalculator: Sendable {
         // Other providers - estimates
         case .mistral: (2.00, 6.00)
         case .groq: (0.27, 0.27) // Groq has very low pricing
-        case .grok: (2.00, 8.00)
+        case let .grok(grokModel):
+            switch grokModel {
+            case .grok43, .grok420MultiAgent, .grok420Reasoning, .grok420NonReasoning: (1.25, 2.50)
+            case .custom: (2.00, 8.00)
+            }
         case .minimax, .minimaxCN: (0.30, 1.20)
         case .ollama: (0.00, 0.00) // Local inference
         case .lmstudio: (0.00, 0.00) // Local inference

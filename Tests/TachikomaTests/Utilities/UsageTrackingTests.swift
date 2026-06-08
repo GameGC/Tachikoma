@@ -139,6 +139,17 @@ struct UsageTrackingTests {
         #expect(geminiFlashCost.output == 9.00)
         #expect(geminiFlashCost.total == 10.50)
 
+        // Test Grok pricing
+        let grokCost = calculator.calculateCost(for: .grok(.grok43), usage: usage)
+        #expect(grokCost.input == 1.25)
+        #expect(grokCost.output == 2.50)
+        #expect(grokCost.total == 3.75)
+
+        let grok420Cost = calculator.calculateCost(for: .grok(.grok420Reasoning), usage: usage)
+        #expect(grok420Cost.input == 1.25)
+        #expect(grok420Cost.output == 2.50)
+        #expect(grok420Cost.total == 3.75)
+
         // Test Ollama (should be free)
         let ollamaCost = calculator.calculateCost(for: .ollama(.llama33), usage: usage)
         #expect(ollamaCost.input == 0.0)
