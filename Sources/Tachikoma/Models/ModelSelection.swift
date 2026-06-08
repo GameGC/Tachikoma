@@ -44,13 +44,15 @@ public struct ModelSelector {
             return .grok(grokModel)
         }
 
-        if let qualified = ProviderParser.parse(normalized),
-           ["grok", "xai", "x-ai"].contains(qualified.provider.lowercased())
+        if
+            let qualified = ProviderParser.parse(normalized),
+            ["grok", "xai", "x-ai"].contains(qualified.provider.lowercased())
         {
             let model = qualified.model.lowercased()
-            guard !Self.isUnsupportedLegacyGrokModel(model),
-                  let grokModel = self.parseGrokModel(model)
-            else {
+            guard
+                !Self.isUnsupportedLegacyGrokModel(model),
+                let grokModel = self.parseGrokModel(model) else
+            {
                 throw ModelValidationError.unsupportedModel(modelString)
             }
             return .grok(grokModel)
@@ -113,8 +115,10 @@ public struct ModelSelector {
 
     private static func parseOpenAIModel(_ input: String) -> Model.OpenAI? {
         switch input {
-        case "chat-latest", "chatlatest", "gpt-5-chat-latest", "gpt5-chat-latest", "gpt5chatlatest":
+        case "chat-latest", "chatlatest":
             return .chatLatest
+        case "gpt-5-chat-latest", "gpt5-chat-latest", "gpt5chatlatest":
+            return .gpt5ChatLatest
         // GPT-5.5 models
         case "gpt-5.5", "gpt5.5", "gpt-5-5", "gpt5-5", "gpt55":
             return .gpt55

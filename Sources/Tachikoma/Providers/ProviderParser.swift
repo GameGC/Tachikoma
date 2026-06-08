@@ -233,8 +233,10 @@ public enum ProviderParser {
         }
 
         return switch normalized {
-        case "chat-latest", "chatlatest", "gpt-5-chat-latest", "gpt5-chat-latest", "gpt5chatlatest":
+        case "chat-latest", "chatlatest":
             .openai(.chatLatest)
+        case "gpt-5-chat-latest", "gpt5-chat-latest", "gpt5chatlatest":
+            .openai(.gpt5ChatLatest)
         case "gpt-5.5", "gpt5.5", "gpt-5-5", "gpt5-5", "gpt55": .openai(.gpt55)
         case "gpt-5.5-mini", "gpt5.5-mini", "gpt-5-5-mini", "gpt5-5-mini", "gpt55-mini", "gpt55mini":
             .openai(.gpt5Mini)

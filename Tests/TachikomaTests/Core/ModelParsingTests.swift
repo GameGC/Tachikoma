@@ -17,10 +17,11 @@ struct ModelParsingTests {
     @Test
     func `parse chat latest OpenAI alias`() throws {
         #expect(LanguageModel.parse(from: "chat-latest") == .openai(.chatLatest))
-        #expect(LanguageModel.parse(from: "gpt-5-chat-latest") == .openai(.chatLatest))
+        #expect(LanguageModel.parse(from: "gpt-5-chat-latest") == .openai(.gpt5ChatLatest))
         #expect(LanguageModel.parse(from: "openai/chat-latest") == .openai(.chatLatest))
-        #expect(LanguageModel.parse(from: "openai/gpt-5-chat-latest") == .openai(.chatLatest))
+        #expect(LanguageModel.parse(from: "openai/gpt-5-chat-latest") == .openai(.gpt5ChatLatest))
         #expect(try ModelSelector.parseModel("openai/chat-latest") == .openai(.chatLatest))
+        #expect(try ModelSelector.parseModel("openai/gpt-5-chat-latest") == .openai(.gpt5ChatLatest))
     }
 
     @Test
@@ -93,8 +94,10 @@ struct ModelParsingTests {
 
     @Test
     func `ModelSelector keeps generic slash IDs as OpenRouter models`() throws {
-        #expect(try ModelSelector.parseModel("anthropic/claude-opus-4-8") == .openRouter(modelId: "anthropic/claude-opus-4-8"))
-        #expect(try ModelSelector.parseModel("google/gemini-3.5-flash") == .openRouter(modelId: "google/gemini-3.5-flash"))
+        #expect(try ModelSelector
+            .parseModel("anthropic/claude-opus-4-8") == .openRouter(modelId: "anthropic/claude-opus-4-8"))
+        #expect(try ModelSelector
+            .parseModel("google/gemini-3.5-flash") == .openRouter(modelId: "google/gemini-3.5-flash"))
         #expect(try ModelSelector.parseModel("xai/grok-4.3-latest") == .grok(.grok43))
         #expect(try ModelSelector.parseModel("openai/claude") == .openRouter(modelId: "openai/claude"))
     }

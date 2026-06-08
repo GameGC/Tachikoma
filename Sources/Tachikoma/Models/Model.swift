@@ -36,6 +36,9 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         /// Latest ChatGPT Instant alias.
         case chatLatest
 
+        /// GPT-5 snapshot previously used in ChatGPT.
+        case gpt5ChatLatest
+
         /// GPT-5.5 Series
         case gpt55 // Flagship GPT-5.5
 
@@ -71,6 +74,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
             switch self {
             case let .custom(id): id
             case .chatLatest: "chat-latest"
+            case .gpt5ChatLatest: "gpt-5-chat-latest"
             case .gpt55: "gpt-5.5"
             case .gpt54: "gpt-5.4"
             case .gpt54Mini: "gpt-5.4-mini"
@@ -85,6 +89,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public var supportsVision: Bool {
             switch self {
             case .chatLatest,
+                 .gpt5ChatLatest,
                  .gpt55,
                  .gpt54, .gpt54Mini, .gpt54Nano,
                  .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano: true // GPT-5+ supports multimodal
@@ -95,6 +100,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public var supportsTools: Bool {
             switch self {
             case .chatLatest,
+                 .gpt5ChatLatest,
                  .gpt55,
                  .gpt54, .gpt54Mini, .gpt54Nano,
                  .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano: true // GPT-5+ excels at tool calling
@@ -127,8 +133,9 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var contextLength: Int {
             switch self {
-            case .chatLatest,
-                 .gpt55,
+            case .gpt5ChatLatest:
+                128_000
+            case .chatLatest, .gpt55,
                  .gpt54, .gpt54Mini, .gpt54Nano,
                  .gpt5, .gpt5Pro, .gpt5Mini, .gpt5Nano: 400_000 // 272k input + 128k output
             case .custom: 128_000 // Default assumption
@@ -1153,9 +1160,10 @@ extension LanguageModel {
             return Self.parseKnownProviderQualified(qualified)
         }
 
-        let modelIdentifier = if let qualified,
-                                 ["openai", "anthropic", "google", "gemini", "grok", "xai"]
-                                 .contains(qualified.provider.lowercased())
+        let modelIdentifier = if
+            let qualified,
+            ["openai", "anthropic", "google", "gemini", "grok", "xai"]
+                .contains(qualified.provider.lowercased())
         {
             qualified.model
         } else {
@@ -1177,11 +1185,12 @@ extension LanguageModel {
             return nil
         }
 
-        if
-            dashed == "chat-latest" || compact == "chatlatest" || dashed == "gpt-5-chat-latest" || compact ==
-            "gpt5chatlatest"
-        {
+        if dashed == "chat-latest" || compact == "chatlatest" {
             return .openai(.chatLatest)
+        }
+
+        if dashed == "gpt-5-chat-latest" || compact == "gpt5chatlatest" {
+            return .openai(.gpt5ChatLatest)
         }
 
         if dashed == "gpt-5-pro" || compact == "gpt5pro" {
@@ -1522,13 +1531,17 @@ extension LanguageModel {
                 return nil
             }
             return unqualifiedModel { if case .openai = $0 { true } else { false } }
-                ?? (Self.looksOpenAI(normalized) && !Self.isUnsupportedOpenAI(normalized) ? .openai(.custom(model)) : nil)
+                ??
+                (Self.looksOpenAI(normalized) && !Self
+                    .isUnsupportedOpenAI(normalized) ? .openai(.custom(model)) : nil)
         case "anthropic":
             guard !Self.looksOpenAI(normalized), !Self.looksGoogle(normalized), !Self.looksGrok(normalized) else {
                 return nil
             }
             return unqualifiedModel { if case .anthropic = $0 { true } else { false } }
-                ?? (Self.looksAnthropic(normalized) && !Self.isUnsupportedAnthropic(normalized) ? .anthropic(.custom(model)) : nil)
+                ??
+                (Self.looksAnthropic(normalized) && !Self
+                    .isUnsupportedAnthropic(normalized) ? .anthropic(.custom(model)) : nil)
         case "google", "gemini":
             guard !Self.looksOpenAI(normalized), !Self.looksAnthropic(normalized), !Self.looksGrok(normalized) else {
                 return nil
@@ -1564,7 +1577,8 @@ extension LanguageModel {
 
     private static func isUnsupportedOpenAI(_ normalized: String) -> Bool {
         let compact = normalized.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")
-        return compact.contains("gpt4") || compact.contains("gpt3") || compact.contains("o3") || compact.contains("o4") ||
+        return compact.contains("gpt4") || compact.contains("gpt3") || compact.contains("o3") || compact
+            .contains("o4") ||
             compact.contains("gpt51") || compact.contains("gpt52") ||
             compact.contains("gpt5thinking") || compact.contains("gpt5chat")
     }

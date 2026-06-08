@@ -59,13 +59,14 @@ public final class OpenAIResponsesProvider: ModelProvider {
         let isReasoningModel = Self.isReasoningModel(model)
         let isGPT5 = Self.isGPT5Model(model)
         let hasLargeOutputWindow = isReasoningModel || isGPT5 || model == .chatLatest
+        let maxOutputTokens = model == .gpt5ChatLatest ? 16384 : (hasLargeOutputWindow ? 128_000 : 4096)
 
         self.capabilities = ModelCapabilities(
             supportsVision: model.supportsVision,
             supportsTools: model.supportsTools,
             supportsStreaming: true,
             contextLength: model.contextLength,
-            maxOutputTokens: hasLargeOutputWindow ? 128_000 : 4096,
+            maxOutputTokens: maxOutputTokens,
         )
     }
 
@@ -942,7 +943,7 @@ public final class OpenAIResponsesProvider: ModelProvider {
     }
 
     private static func usesResponsesEventStream(_ model: LanguageModel.OpenAI) -> Bool {
-        model == .chatLatest || self.isGPT5Model(model)
+        model == .chatLatest || model == .gpt5ChatLatest || self.isGPT5Model(model)
     }
 }
 

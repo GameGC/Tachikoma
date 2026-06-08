@@ -14,6 +14,7 @@ All notable changes to the Tachikoma project will be documented in this file.
 - Removed stale direct model support for retired or non-canonical IDs including GPT-5.1/5.2/pseudo-thinking models, deprecated Claude Sonnet/Opus 4 snapshots, Grok 2/3/4-fast rows, old Groq Llama/Mixtral/Gemma aliases, stale Mistral aliases, and invalid LM Studio `current`.
 
 ### Fixed
+- OpenAI `gpt-5-chat-latest` now preserves its distinct model identity instead of being rewritten to `chat-latest`.
 - SwiftPM consumers now resolve Commander from the package URL instead of accidentally inheriting a sibling local checkout.
 - Ollama model parsing now preserves explicit custom vision model IDs such as `qwen2.5vl:3b` instead of falling back to `llama3.3` (#16).
 - Auth resolution now snapshots environment-ignore state consistently, preventing parallel tests and concurrent callers from falling back to stored OpenRouter credentials when an environment override is present.

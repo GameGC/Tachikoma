@@ -267,6 +267,31 @@ struct OpenAIResponsesProviderTests {
     }
 
     @Test
+    func `GPT-5 Chat Responses payload preserves model ID`() async throws {
+        let config = TachikomaConfiguration(loadFromEnvironment: false)
+        config.setAPIKey("live-openai", for: .openai)
+
+        try await self.withMockedSession { request in
+            let body = try #require(Self.bodyData(from: request))
+            let json = try JSONSerialization.jsonObject(with: body) as? [String: Any]
+            #expect(json?["model"] as? String == "gpt-5-chat-latest")
+            #expect(json?["reasoning"] == nil)
+            #expect(json?["text"] == nil)
+
+            return NetworkMocking.jsonResponse(for: request, data: Self.responsesPayload(text: "pong"))
+        } operation: { session in
+            let provider = try OpenAIResponsesProvider(
+                model: .gpt5ChatLatest,
+                configuration: config,
+                session: session,
+            )
+            #expect(provider.capabilities.contextLength == 128_000)
+            #expect(provider.capabilities.maxOutputTokens == 16384)
+            _ = try await provider.generateText(request: self.sampleRequest)
+        }
+    }
+
+    @Test
     func `Responses provider resolves OAuth access token`() async throws {
         try await self.withIsolatedAuthState {
             try TKAuthManager.shared.setCredential(key: "OPENAI_ACCESS_TOKEN", value: "oauth-access-token")
