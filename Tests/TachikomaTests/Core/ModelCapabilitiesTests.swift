@@ -36,8 +36,8 @@ enum ModelCapabilitiesTests {
         }
 
         @Test
-        func `Gemini 3 Flash supports thinking config options`() {
-            let capabilities = ModelCapabilityRegistry.shared.capabilities(for: .google(.gemini3Flash))
+        func `Gemini 3_5 Flash supports thinking config options`() {
+            let capabilities = ModelCapabilityRegistry.shared.capabilities(for: .google(.gemini35Flash))
             #expect(capabilities.supportsTopK)
             #expect(capabilities.supportedProviderOptions.supportsThinkingConfig)
             #expect(capabilities.supportedProviderOptions.supportsSafetySettings)
@@ -79,8 +79,33 @@ enum ModelCapabilitiesTests {
         }
 
         @Test
+        func `Claude Opus 4_7 and 4_8 advertise adaptive thinking without sampling options`() {
+            for model in [LanguageModel.anthropic(.opus47), .anthropic(.opus48)] {
+                let capabilities = ModelCapabilityRegistry.shared.capabilities(for: model)
+
+                #expect(!capabilities.supportsTemperature)
+                #expect(!capabilities.supportsTopP)
+                #expect(!capabilities.supportsTopK)
+                #expect(capabilities.excludedParameters.contains("temperature"))
+                #expect(capabilities.excludedParameters.contains("topP"))
+                #expect(capabilities.excludedParameters.contains("topK"))
+                #expect(capabilities.supportedProviderOptions.supportsThinking)
+                #expect(capabilities.supportedProviderOptions.supportsCacheControl)
+            }
+        }
+
+        @Test
+        func `Custom Anthropic models keep thinking options by default`() {
+            let capabilities = ModelCapabilityRegistry.shared.capabilities(for: .anthropic(.custom("claude-opus-latest")))
+
+            #expect(capabilities.supportedProviderOptions.supportsThinking)
+            #expect(capabilities.supportedProviderOptions.supportsCacheControl)
+        }
+
+        @Test
         func `Google models support topK and thinking`() {
             let models: [LanguageModel] = [
+                .google(.gemini35Flash),
                 .google(.gemini31ProPreview),
                 .google(.gemini31FlashLite),
                 .google(.gemini25Pro),
@@ -240,6 +265,29 @@ enum ModelCapabilitiesTests {
             #expect(validated.providerOptions.anthropic?.cacheControl == .persistent)
             // OpenAI options remain unfiltered (they won't be used by Anthropic provider)
             #expect(validated.providerOptions.openai?.verbosity == .high)
+        }
+
+        @Test
+        func `Validate Anthropic options keeps adaptive thinking for Opus 4_8`() {
+            let settings = GenerationSettings(
+                temperature: 0.7,
+                topP: 0.9,
+                topK: 40,
+                providerOptions: .init(
+                    anthropic: .init(
+                        thinking: .enabled(budgetTokens: 3000),
+                        cacheControl: .persistent,
+                    ),
+                ),
+            )
+
+            let validated = settings.validated(for: LanguageModel.anthropic(.opus48))
+
+            #expect(validated.temperature == nil)
+            #expect(validated.topP == nil)
+            #expect(validated.topK == nil)
+            #expect(validated.providerOptions.anthropic?.thinking != nil)
+            #expect(validated.providerOptions.anthropic?.cacheControl == .persistent)
         }
     }
 

@@ -89,11 +89,13 @@ struct AnthropicMessageRequest: Codable {
     let messages: [AnthropicMessage]
     let tools: [AnthropicTool]?
     let thinking: AnthropicThinking?
+    let outputConfig: AnthropicOutputConfig?
     let stream: Bool?
 
     enum CodingKeys: String, CodingKey {
         case model, temperature, system, messages, tools, thinking, stream
         case maxTokens = "max_tokens"
+        case outputConfig = "output_config"
     }
 }
 
@@ -105,6 +107,10 @@ struct AnthropicThinking: Codable {
         case type
         case budgetTokens = "budget_tokens"
     }
+}
+
+struct AnthropicOutputConfig: Codable {
+    let effort: String?
 }
 
 struct AnthropicMessage: Codable {

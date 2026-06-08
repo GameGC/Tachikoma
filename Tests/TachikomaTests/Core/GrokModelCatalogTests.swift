@@ -32,6 +32,7 @@ struct GrokModelCatalogTests {
                 let parsed = try ModelSelector.parseModel(model.modelId)
                 #expect(parsed == .grok(model))
             }
+            #expect(try ModelSelector.parseModel("grok-4.3-latest") == .grok(.grok43))
         }
     }
 
@@ -55,13 +56,22 @@ struct GrokModelCatalogTests {
     }
 
     @Test
-    func `ModelSelector rejects retired Grok identifiers`() throws {
-        try self.requireModernPlatforms {
-            for id in ["grok-4-0709", "grok-4-fast-reasoning", "grok-code-fast-1", "grok-3", "grok-2-1212"] {
+    func `ModelSelector rejects retired Grok identifiers`() {
+        self.requireModernPlatforms {
+            for id in ["grok-4-0709", "grok-3", "grok-2-1212", "grok-4-fast", "grok-code-fast-1"] {
                 #expect(throws: ModelValidationError.self) {
                     _ = try ModelSelector.parseModel(id)
                 }
             }
+        }
+    }
+
+    @Test
+    func `ModelSelector preserves provider-qualified Grok slugs as OpenRouter IDs`() throws {
+        try self.requireModernPlatforms {
+            let parsed = try ModelSelector.parseModel("xai/grok-code-fast-1")
+
+            #expect(parsed == .openRouter(modelId: "xai/grok-code-fast-1"))
         }
     }
 }

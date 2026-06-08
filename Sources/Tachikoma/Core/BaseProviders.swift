@@ -106,14 +106,65 @@ public final class AnthropicProvider: ModelProvider {
         return Self.mergedBetaHeader(existing: existing)
     }
 
-    private func anthropicThinking(from mode: AnthropicOptions.ThinkingMode?) -> AnthropicThinking? {
+    private func anthropicThinking(
+        from mode: AnthropicOptions.ThinkingMode?,
+        model: LanguageModel.Anthropic,
+    ) -> AnthropicThinking? {
         guard let mode else { return nil }
         switch mode {
         case .disabled:
             return nil
+        case .adaptive:
+            guard self.usesAdaptiveThinking(model: model) else { return nil }
+            return AnthropicThinking(type: "adaptive", budgetTokens: nil)
         case let .enabled(budgetTokens):
+            if case .opus48 = model {
+                return AnthropicThinking(type: "adaptive", budgetTokens: nil)
+            }
+            if case .opus47 = model {
+                return AnthropicThinking(type: "adaptive", budgetTokens: nil)
+            }
             return AnthropicThinking(type: "enabled", budgetTokens: budgetTokens)
         }
+    }
+
+    private func anthropicOutputConfig(
+        from mode: AnthropicOptions.ThinkingMode?,
+        settings: GenerationSettings,
+        model: LanguageModel.Anthropic,
+    ) -> AnthropicOutputConfig? {
+        guard self.supportsEffort(model: model) else { return nil }
+        if let effort = settings.reasoningEffort?.rawValue {
+            return AnthropicOutputConfig(effort: effort)
+        }
+        if case .disabled = mode { return nil }
+
+        let effort = self.usesAdaptiveThinking(model: model) ? self.adaptiveEffort(from: mode) : nil
+        return effort.map { AnthropicOutputConfig(effort: $0) }
+    }
+
+    private func usesAdaptiveThinking(model: LanguageModel.Anthropic) -> Bool {
+        if case .opus48 = model { return true }
+        if case .opus47 = model { return true }
+        if case .sonnet46 = model { return true }
+        return false
+    }
+
+    private func supportsEffort(model: LanguageModel.Anthropic) -> Bool {
+        switch model {
+        case .opus48, .opus47, .opus45, .sonnet46:
+            return true
+        default:
+            return false
+        }
+    }
+
+    private func adaptiveEffort(from mode: AnthropicOptions.ThinkingMode?) -> String? {
+        guard case let .enabled(budgetTokens) = mode else { return nil }
+
+        if budgetTokens <= 4_096 { return ReasoningEffort.low.rawValue }
+        if budgetTokens <= 12_000 { return ReasoningEffort.medium.rawValue }
+        return ReasoningEffort.high.rawValue
     }
 
     private func messagesEndpointURL() throws -> URL {
@@ -146,7 +197,16 @@ public final class AnthropicProvider: ModelProvider {
             urlRequest.setValue(value, forHTTPHeaderField: key)
         }
 
-        let requestedThinking = self.anthropicThinking(from: request.settings.providerOptions.anthropic?.thinking)
+        let validatedSettings = request.settings.validated(for: .anthropic(self.model))
+        let requestedThinking = self.anthropicThinking(
+            from: validatedSettings.providerOptions.anthropic?.thinking,
+            model: self.model,
+        )
+        let outputConfig = self.anthropicOutputConfig(
+            from: validatedSettings.providerOptions.anthropic?.thinking,
+            settings: validatedSettings,
+            model: self.model,
+        )
         var thinking: AnthropicThinking?
         let systemMessage: String?
         let messages: [AnthropicMessage]
@@ -170,12 +230,13 @@ public final class AnthropicProvider: ModelProvider {
         }
         let anthropicRequest = try AnthropicMessageRequest(
             model: modelId,
-            maxTokens: request.settings.maxTokens ?? 1024,
-            temperature: request.settings.temperature,
+            maxTokens: validatedSettings.maxTokens ?? 1024,
+            temperature: validatedSettings.temperature,
             system: systemMessage,
             messages: messages,
             tools: request.tools?.map { try self.convertToolToAnthropic($0) },
             thinking: thinking,
+            outputConfig: outputConfig,
             stream: stream,
         )
 

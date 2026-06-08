@@ -43,9 +43,9 @@ struct ModelParsingTests {
     }
 
     @Test
-    func `parse Claude Opus 4.7 model id`() {
-        let parsed = LanguageModel.parse(from: "claude-opus-4-7")
-        #expect(parsed == .anthropic(.opus47))
+    func `parse Claude Opus 4.8 model id`() {
+        let parsed = LanguageModel.parse(from: "claude-opus-4-8")
+        #expect(parsed == .anthropic(.opus48))
     }
 
     @Test
@@ -57,19 +57,46 @@ struct ModelParsingTests {
     @Test
     func `parse shorthand Claude alias`() {
         let parsed = LanguageModel.parse(from: "claude")
-        #expect(parsed == .anthropic(.opus47))
+        #expect(parsed == .anthropic(.opus48))
     }
 
     @Test
-    func `parse Gemini 3.1 Pro model id`() {
-        let parsed = LanguageModel.parse(from: "gemini-3.1-pro-preview")
-        #expect(parsed == .google(.gemini31ProPreview))
+    func `parse Gemini 3.5 Flash model id`() {
+        let parsed = LanguageModel.parse(from: "gemini-3.5-flash")
+        #expect(parsed == .google(.gemini35Flash))
     }
 
     @Test
     func `parse shorthand Gemini alias`() {
         let parsed = LanguageModel.parse(from: "gemini")
-        #expect(parsed == .google(.gemini31ProPreview))
+        #expect(parsed == .google(.gemini35Flash))
+    }
+
+    @Test
+    func `parse provider qualified latest hosted models`() throws {
+        #expect(LanguageModel.parse(from: "anthropic/claude-opus-4-8") == .anthropic(.opus48))
+        #expect(LanguageModel.parse(from: "google/gemini-3.5-flash") == .google(.gemini35Flash))
+        #expect(LanguageModel.parse(from: "xai/grok-4.3-latest") == .grok(.grok43))
+        #expect(LanguageModel.parse(from: "grok-4-latest") == .grok(.grok43))
+        #expect(LanguageModel.parse(from: "grok-4") == .grok(.grok43))
+        #expect(LanguageModel.parse(from: "xai/grok-code-fast-1") == nil)
+        #expect(try ModelSelector.parseModel("grok-4") == .grok(.grok43))
+    }
+
+    @Test
+    func `parse rejects provider-qualified hosted model mismatches`() {
+        #expect(LanguageModel.parse(from: "openai/claude") == nil)
+        #expect(LanguageModel.parse(from: "google/claude") == nil)
+        #expect(LanguageModel.parse(from: "xai/gemini-3.5-flash") == nil)
+        #expect(LanguageModel.parse(from: "anthropic/gpt-5.5") == nil)
+    }
+
+    @Test
+    func `ModelSelector keeps plain slash IDs as OpenRouter models`() throws {
+        #expect(try ModelSelector.parseModel("anthropic/claude-opus-4-8") == .openRouter(modelId: "anthropic/claude-opus-4-8"))
+        #expect(try ModelSelector.parseModel("google/gemini-3.5-flash") == .openRouter(modelId: "google/gemini-3.5-flash"))
+        #expect(try ModelSelector.parseModel("xai/grok-4.3-latest") == .openRouter(modelId: "xai/grok-4.3-latest"))
+        #expect(try ModelSelector.parseModel("openai/claude") == .openRouter(modelId: "openai/claude"))
     }
 
     @Test
@@ -132,7 +159,7 @@ struct ModelParsingTests {
     }
 
     @Test
-    func `ProviderParser keeps existing Google default behavior`() {
+    func `ProviderParser keeps configured Google model behavior`() {
         if #available(macOS 13.0, iOS 16.0, tvOS 16.0, watchOS 9.0, *) {
             let model = ProviderParser.determineDefaultModel(
                 from: "google/gemini-3.1-pro-preview",

@@ -268,6 +268,9 @@ public enum ProviderParser {
         }
 
         return switch normalized {
+        case "claude-opus-4-8", "claude-opus-4.8", "claude-opus-4-8-latest", "opus-4-8", "opus-4.8",
+             "opus48":
+            .anthropic(.opus48)
         case "claude-opus-4-7", "claude-opus-4.7", "claude-opus-4-7-latest", "opus-4-7", "opus-4.7", "opus47":
             .anthropic(.opus47)
         case "claude-opus-4-5", "claude-opus-4.5", "claude-opus-4-5-latest", "opus-4-5", "opus-4.5", "opus45":
@@ -287,6 +290,8 @@ public enum ProviderParser {
 
     private static func parseGoogleModel(_ modelString: String) -> LanguageModel? {
         switch modelString.lowercased() {
+        case "gemini-3.5-flash", "gemini35flash", "gemini-3-5-flash":
+            .google(.gemini35Flash)
         case "gemini-3.1-pro-preview", "gemini-3.1-pro", "gemini31pro", "gemini31propreview":
             .google(.gemini31ProPreview)
         case "gemini-3.1-flash-lite", "gemini31flashlite", "gemini-3.1-flashlite":
@@ -300,7 +305,7 @@ public enum ProviderParser {
         case "gemini-2.5-flash-lite", "gemini25flashlite", "gemini-2.5-flashlite":
             .google(.gemini25FlashLite)
         case "gemini":
-            .google(.gemini31ProPreview)
+            .google(.gemini35Flash)
         default:
             nil
         }
@@ -330,7 +335,7 @@ public enum ProviderParser {
 
     private static func parseGrokModel(_ modelString: String) -> LanguageModel? {
         switch modelString.lowercased() {
-        case "grok-4.3", "grok-4-3", "grok43", "grok-latest":
+        case "grok-4.3", "grok-4-3", "grok43", "grok-4.3-latest", "grok-4-latest", "grok-4", "grok-latest":
             return .grok(.grok43)
         case "grok-4.20-multi-agent-0309", "grok-4-20-multi-agent-0309":
             return .grok(.grok420MultiAgent)
@@ -350,9 +355,9 @@ public enum ProviderParser {
         let normalized = modelString.lowercased()
         return normalized.hasPrefix("grok-2") ||
             normalized.hasPrefix("grok-3") ||
-            normalized == "grok-4-0709" ||
             normalized.hasPrefix("grok-4-fast") ||
             normalized.hasPrefix("grok-code-fast") ||
+            normalized == "grok-4-0709" ||
             normalized.contains("grok-beta") ||
             normalized.contains("grok-vision-beta")
     }
@@ -388,13 +393,13 @@ public enum ProviderParser {
         -> LanguageModel
     {
         if hasAnthropic {
-            .anthropic(.opus47)
+            .anthropic(.opus48)
         } else if hasOpenAI {
             .openai(.gpt55)
         } else if hasGrok {
             .grok(.grok43)
         } else if hasGoogle {
-            .google(.gemini31ProPreview)
+            .google(.gemini35Flash)
         } else if hasMiniMax {
             .minimax(.m27)
         } else {

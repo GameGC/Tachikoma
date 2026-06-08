@@ -123,10 +123,21 @@ struct UsageTrackingTests {
         #expect(gpt5MiniCost.total == 5.00)
 
         // Test Anthropic pricing
+        let claudeOpusCost = calculator.calculateCost(for: .anthropic(.opus48), usage: usage)
+        #expect(claudeOpusCost.input == 5.00)
+        #expect(claudeOpusCost.output == 25.00)
+        #expect(claudeOpusCost.total == 30.00)
+
         let claudeHaikuCost = calculator.calculateCost(for: .anthropic(.haiku45), usage: usage)
         #expect(claudeHaikuCost.input == 1.20) // $1.20 per million input tokens
         #expect(claudeHaikuCost.output == 6.00) // $6.00 per million output tokens
         #expect(claudeHaikuCost.total == 7.20)
+
+        // Test Google pricing
+        let geminiFlashCost = calculator.calculateCost(for: .google(.gemini35Flash), usage: usage)
+        #expect(geminiFlashCost.input == 1.50)
+        #expect(geminiFlashCost.output == 9.00)
+        #expect(geminiFlashCost.total == 10.50)
 
         // Test Ollama (should be free)
         let ollamaCost = calculator.calculateCost(for: .ollama(.llama33), usage: usage)

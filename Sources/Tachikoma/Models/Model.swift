@@ -150,6 +150,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
     public enum Anthropic: Sendable, Hashable, CaseIterable {
         // Claude 4.x / 4.5+ Series
+        case opus48
         case opus47
         case opus45
         case opus4
@@ -162,6 +163,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public static var allCases: [Anthropic] {
             [
+                .opus48,
                 .opus47,
                 .opus45,
                 .opus4,
@@ -174,6 +176,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public var modelId: String {
             switch self {
             case let .custom(id): id
+            case .opus48: "claude-opus-4-8"
             case .opus47: "claude-opus-4-7"
             case .opus45: "claude-opus-4-5"
             case .opus4: "claude-opus-4-1-20250805"
@@ -185,7 +188,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var supportsVision: Bool {
             switch self {
-            case .opus47, .opus45, .opus4, .sonnet46, .sonnet45, .haiku45:
+            case .opus48, .opus47, .opus45, .opus4, .sonnet46, .sonnet45, .haiku45:
                 true
             case .custom: true // Assume custom models support vision
             }
@@ -207,7 +210,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var contextLength: Int {
             switch self {
-            case .opus47, .sonnet46: 1_000_000
+            case .opus48, .opus47, .sonnet46: 1_000_000
             case .haiku45: 200_000
             case .opus45, .opus4, .sonnet45: 500_000
             case .custom: 200_000 // Default assumption
@@ -216,6 +219,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
     }
 
     public enum Google: String, Sendable, Hashable, CaseIterable {
+        case gemini35Flash = "gemini-3.5-flash"
         case gemini31ProPreview = "gemini-3.1-pro-preview"
         case gemini31FlashLite = "gemini-3.1-flash-lite"
         // NOTE: As of 2025-12-17, ListModels exposes Gemini 3 Flash as `gemini-3-flash-preview` on v1beta.
@@ -231,6 +235,8 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var userFacingModelId: String {
             switch self {
+            case .gemini35Flash:
+                "gemini-3.5-flash"
             case .gemini3Flash:
                 "gemini-3-flash"
             case .gemini31ProPreview:
@@ -252,7 +258,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var supportsAudioInput: Bool {
             switch self {
-            case .gemini31ProPreview, .gemini3Flash, .gemini25Pro, .gemini25Flash:
+            case .gemini35Flash, .gemini31ProPreview, .gemini3Flash, .gemini25Pro, .gemini25Flash:
                 true
             case .gemini31FlashLite, .gemini25FlashLite:
                 false
@@ -265,7 +271,8 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var contextLength: Int {
             switch self {
-            case .gemini31ProPreview, .gemini31FlashLite, .gemini3Flash, .gemini25Pro, .gemini25Flash:
+            case .gemini35Flash, .gemini31ProPreview, .gemini31FlashLite, .gemini3Flash, .gemini25Pro,
+                 .gemini25Flash:
                 1_048_576
             case .gemini25FlashLite:
                 524_288
@@ -807,12 +814,12 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
     // MARK: - Default Model
 
-    public static let `default`: LanguageModel = .anthropic(.opus47)
+    public static let `default`: LanguageModel = .anthropic(.opus48)
 
     // MARK: - Convenience Static Properties
 
-    /// Default Claude model (opus47)
-    public static let claude: LanguageModel = .anthropic(.opus47)
+    /// Default Claude model (opus48)
+    public static let claude: LanguageModel = .anthropic(.opus48)
 
     /// Default Grok model (Grok 4.3)
     public static let grok4: LanguageModel = .grok(.grok43)
@@ -1091,35 +1098,37 @@ extension LanguageModel {
         let trimmed = modelString.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return nil }
 
+        let qualified = ProviderParser.parse(trimmed)
+
         if
-            let qualified = ProviderParser.parse(trimmed),
+            let qualified,
             qualified.provider.lowercased() == "ollama"
         {
             return .ollama(Self.parseOllamaModelIdentifier(qualified.model))
         }
 
         if
-            let qualified = ProviderParser.parse(trimmed),
+            let qualified,
             ["lmstudio", "lm-studio"].contains(qualified.provider.lowercased())
         {
             return .lmstudio(Self.parseLMStudioModelIdentifier(qualified.model))
         }
 
         if
-            let qualified = ProviderParser.parse(trimmed),
+            let qualified,
             qualified.provider.lowercased() == "minimax"
         {
             return Self.parseMiniMaxModelIdentifier(qualified.model).map(LanguageModel.minimax)
         }
 
         if
-            let qualified = ProviderParser.parse(trimmed),
+            let qualified,
             ["minimax-cn", "minimax_cn", "minimaxi"].contains(qualified.provider.lowercased())
         {
             return Self.parseMiniMaxModelIdentifier(qualified.model).map(LanguageModel.minimaxCN)
         }
 
-        if let qualified = ProviderParser.parse(trimmed) {
+        if let qualified {
             let provider = qualified.provider.lowercased()
             if provider == "openai" {
                 guard
@@ -1134,9 +1143,19 @@ extension LanguageModel {
             if !["openai", "anthropic", "google", "gemini", "grok", "xai"].contains(provider) {
                 return .openRouter(modelId: trimmed)
             }
+            return Self.parseKnownProviderQualified(qualified)
         }
 
-        let normalized = trimmed.lowercased()
+        let modelIdentifier = if let qualified,
+                                 ["openai", "anthropic", "google", "gemini", "grok", "xai"]
+                                 .contains(qualified.provider.lowercased())
+        {
+            qualified.model
+        } else {
+            trimmed
+        }
+
+        let normalized = modelIdentifier.lowercased()
         let dashed = normalized.replacingOccurrences(of: "_", with: "-")
         let compact = dashed.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")
         let dotted = dashed.replacingOccurrences(of: ".", with: "-")
@@ -1199,6 +1218,17 @@ extension LanguageModel {
             normalized.contains("-thinking")
         {
             return nil
+        }
+
+        if
+            dotted.contains("claude-opus-4-8") ||
+            dotted.contains("claude-opus-4.8") ||
+            compact.contains("claudeopus48") ||
+            dotted.contains("opus-4-8") ||
+            dotted.contains("opus-4.8") ||
+            compact.contains("opus48")
+        {
+            return .anthropic(.opus48)
         }
 
         if
@@ -1272,10 +1302,17 @@ extension LanguageModel {
 
         let canonicalForms = [normalized, dashed, compact]
         if canonicalForms.contains(where: { genericClaudeIdentifiers.contains($0) }) {
-            return .anthropic(.opus47)
+            return .anthropic(.opus48)
         }
 
         // MARK: Google models
+
+        if
+            dashed.contains("gemini-3.5-flash") || dotted.contains("gemini-3-5-flash") || compact
+                .contains("gemini35flash")
+        {
+            return .google(.gemini35Flash)
+        }
 
         if
             dashed.contains("gemini-3.1-pro") || dotted.contains("gemini-3-1-pro") || compact
@@ -1322,7 +1359,7 @@ extension LanguageModel {
         ]
 
         if canonicalForms.contains(where: { genericGeminiIdentifiers.contains($0) }) {
-            return .google(.gemini31ProPreview)
+            return .google(.gemini35Flash)
         }
 
         // MARK: MiniMax models
@@ -1372,9 +1409,9 @@ extension LanguageModel {
 
         let unsupportedGrok = normalized.hasPrefix("grok-2") ||
             normalized.hasPrefix("grok-3") ||
-            normalized == "grok-4-0709" ||
             normalized.hasPrefix("grok-4-fast") ||
             normalized.hasPrefix("grok-code-fast") ||
+            normalized == "grok-4-0709" ||
             normalized.contains("grok-beta") ||
             normalized.contains("grok-vision-beta")
         if unsupportedGrok {
@@ -1393,8 +1430,19 @@ extension LanguageModel {
             return .grok(.grok420NonReasoning)
         }
 
-        if dotted.contains("grok-4-3") || normalized.contains("grok-4.3") || compact.contains("grok43") {
+        if
+            dotted.contains("grok-4-3") ||
+            normalized.contains("grok-4.3") ||
+            compact.contains("grok43") ||
+            normalized == "grok-4-latest" ||
+            normalized == "grok-4" ||
+            normalized == "grok-latest"
+        {
             return .grok(.grok43)
+        }
+
+        if normalized.hasPrefix("grok-") {
+            return .grok(.custom(modelIdentifier))
         }
 
         if compact.contains("grok") {
@@ -1457,6 +1505,87 @@ extension LanguageModel {
         }
 
         return nil
+    }
+
+    private static func parseKnownProviderQualified(_ qualified: ProviderParser.ProviderConfig) -> LanguageModel? {
+        let provider = qualified.provider.lowercased()
+        let model = qualified.model
+        let normalized = model.lowercased()
+
+        func unqualifiedModel(matchingProvider expectedProvider: (LanguageModel) -> Bool) -> LanguageModel? {
+            guard let parsed = Self.parse(from: model), expectedProvider(parsed) else { return nil }
+            return parsed
+        }
+
+        switch provider {
+        case "openai":
+            guard !Self.looksAnthropic(normalized), !Self.looksGoogle(normalized), !Self.looksGrok(normalized) else {
+                return nil
+            }
+            return unqualifiedModel { if case .openai = $0 { true } else { false } }
+                ?? (Self.looksOpenAI(normalized) && !Self.isUnsupportedOpenAI(normalized) ? .openai(.custom(model)) : nil)
+        case "anthropic":
+            guard !Self.looksOpenAI(normalized), !Self.looksGoogle(normalized), !Self.looksGrok(normalized) else {
+                return nil
+            }
+            return unqualifiedModel { if case .anthropic = $0 { true } else { false } }
+                ?? (Self.looksAnthropic(normalized) && !Self.isUnsupportedAnthropic(normalized) ? .anthropic(.custom(model)) : nil)
+        case "google", "gemini":
+            guard !Self.looksOpenAI(normalized), !Self.looksAnthropic(normalized), !Self.looksGrok(normalized) else {
+                return nil
+            }
+            return unqualifiedModel { if case .google = $0 { true } else { false } }
+        case "grok", "xai":
+            guard !Self.looksOpenAI(normalized), !Self.looksAnthropic(normalized), !Self.looksGoogle(normalized) else {
+                return nil
+            }
+            return unqualifiedModel { if case .grok = $0 { true } else { false } }
+                ?? (Self.looksGrok(normalized) && !Self.isUnsupportedGrok(normalized) ? .grok(.custom(model)) : nil)
+        default:
+            return nil
+        }
+    }
+
+    private static func looksOpenAI(_ normalized: String) -> Bool {
+        normalized.contains("gpt") || normalized.hasPrefix("o3") || normalized.hasPrefix("o4") || normalized == "openai"
+    }
+
+    private static func looksAnthropic(_ normalized: String) -> Bool {
+        normalized.contains("claude") || normalized.contains("opus") || normalized.contains("sonnet") ||
+            normalized.contains("haiku") || normalized == "anthropic"
+    }
+
+    private static func looksGoogle(_ normalized: String) -> Bool {
+        normalized.contains("gemini") || normalized == "google"
+    }
+
+    private static func looksGrok(_ normalized: String) -> Bool {
+        normalized.contains("grok") || normalized == "xai"
+    }
+
+    private static func isUnsupportedOpenAI(_ normalized: String) -> Bool {
+        let compact = normalized.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")
+        return compact.contains("gpt4") || compact.contains("gpt3") || compact.contains("o3") || compact.contains("o4") ||
+            compact.contains("gpt51") || compact.contains("gpt52") ||
+            compact.contains("gpt5thinking") || compact.contains("gpt5chat")
+    }
+
+    private static func isUnsupportedAnthropic(_ normalized: String) -> Bool {
+        let compact = normalized.replacingOccurrences(of: "-", with: "").replacingOccurrences(of: ".", with: "")
+        return normalized.hasPrefix("claude-3") || compact.hasPrefix("claude3") ||
+            normalized == "claude-opus-4-20250514" ||
+            normalized == "claude-sonnet-4-20250514" ||
+            normalized.contains("-thinking")
+    }
+
+    private static func isUnsupportedGrok(_ normalized: String) -> Bool {
+        normalized.hasPrefix("grok-2") ||
+            normalized.hasPrefix("grok-3") ||
+            normalized.hasPrefix("grok-4-fast") ||
+            normalized.hasPrefix("grok-code-fast") ||
+            normalized == "grok-4-0709" ||
+            normalized.contains("grok-beta") ||
+            normalized.contains("grok-vision-beta")
     }
 
     private static func parseOllamaModelIdentifier(_ modelString: String) -> Ollama {

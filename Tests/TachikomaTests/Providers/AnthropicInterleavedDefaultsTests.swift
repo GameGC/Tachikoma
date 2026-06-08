@@ -25,7 +25,7 @@ struct AnthropicInterleavedDefaultsTests {
     @Test
     func `Provider request includes beta header and thinking payload`() throws {
         let config = TachikomaConfiguration(apiKeys: ["anthropic": "test-key"])
-        let provider = try AnthropicProvider(model: .opus47, configuration: config)
+        let provider = try AnthropicProvider(model: .opus45, configuration: config)
 
         let settings = GenerationSettings(
             maxTokens: 64,
@@ -49,10 +49,203 @@ struct AnthropicInterleavedDefaultsTests {
 
         let body = try #require(urlRequest.httpBody)
         let json = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
-        #expect(json["model"] as? String == "claude-opus-4-7")
+        #expect(json["model"] as? String == "claude-opus-4-5")
         #expect(json["stream"] as? Bool == true)
 
         let thinking = try #require(json["thinking"] as? [String: Any])
+        #expect(thinking["type"] as? String == "enabled")
+        #expect(thinking["budget_tokens"] as? Int == 12000)
+    }
+
+    @Test
+    func `Opus 4_7 request strips unsupported sampling and uses adaptive thinking`() throws {
+        let config = TachikomaConfiguration(apiKeys: ["anthropic": "test-key"])
+        let provider = try AnthropicProvider(model: .opus47, configuration: config)
+
+        let settings = GenerationSettings(
+            maxTokens: 64,
+            temperature: 0.7,
+            topP: 0.9,
+            topK: 40,
+            providerOptions: .init(anthropic: .init(thinking: .enabled(budgetTokens: 12000))),
+        )
+
+        let request = ProviderRequest(
+            messages: [.user("hi")],
+            settings: settings,
+        )
+
+        let urlRequest = try provider.makeURLRequest(for: request, stream: false)
+        let body = try #require(urlRequest.httpBody)
+        let json = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+
+        #expect(json["model"] as? String == "claude-opus-4-7")
+        #expect(json["temperature"] == nil)
+        #expect(json["top_p"] == nil)
+        #expect(json["top_k"] == nil)
+        let thinking = try #require(json["thinking"] as? [String: Any])
+        #expect(thinking["type"] as? String == "adaptive")
+        #expect(thinking["budget_tokens"] == nil)
+        let outputConfig = try #require(json["output_config"] as? [String: Any])
+        #expect(outputConfig["effort"] as? String == "medium")
+        #expect(json["max_tokens"] as? Int == 64)
+    }
+
+    @Test
+    func `Opus 4_8 request strips unsupported sampling and uses adaptive thinking`() throws {
+        let config = TachikomaConfiguration(apiKeys: ["anthropic": "test-key"])
+        let provider = try AnthropicProvider(model: .opus48, configuration: config)
+
+        let settings = GenerationSettings(
+            maxTokens: 64,
+            temperature: 0.7,
+            topP: 0.9,
+            topK: 40,
+            reasoningEffort: .low,
+            providerOptions: .init(anthropic: .init(thinking: .enabled(budgetTokens: 12000))),
+        )
+
+        let request = ProviderRequest(
+            messages: [.user("hi")],
+            settings: settings,
+        )
+
+        let urlRequest = try provider.makeURLRequest(for: request, stream: false)
+        let body = try #require(urlRequest.httpBody)
+        let json = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+
+        #expect(json["model"] as? String == "claude-opus-4-8")
+        #expect(json["temperature"] == nil)
+        #expect(json["top_p"] == nil)
+        #expect(json["top_k"] == nil)
+        let thinking = try #require(json["thinking"] as? [String: Any])
+        #expect(thinking["type"] as? String == "adaptive")
+        #expect(thinking["budget_tokens"] == nil)
+        let outputConfig = try #require(json["output_config"] as? [String: Any])
+        #expect(outputConfig["effort"] as? String == "low")
+        #expect(json["max_tokens"] as? Int == 64)
+    }
+
+    @Test
+    func `Opus reasoning effort is kept when thinking is disabled`() throws {
+        let config = TachikomaConfiguration(apiKeys: ["anthropic": "test-key"])
+        let provider = try AnthropicProvider(model: .opus48, configuration: config)
+
+        let settings = GenerationSettings(
+            maxTokens: 64,
+            reasoningEffort: .low,
+            providerOptions: .init(anthropic: .init(thinking: .disabled)),
+        )
+
+        let request = ProviderRequest(
+            messages: [.user("hi")],
+            settings: settings,
+        )
+
+        let urlRequest = try provider.makeURLRequest(for: request, stream: false)
+        let body = try #require(urlRequest.httpBody)
+        let json = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+        let outputConfig = try #require(json["output_config"] as? [String: Any])
+
+        #expect(json["thinking"] == nil)
+        #expect(outputConfig["effort"] as? String == "low")
+    }
+
+    @Test
+    func `Opus effort is sent without thinking when reasoning effort is configured`() throws {
+        let config = TachikomaConfiguration(apiKeys: ["anthropic": "test-key"])
+        let provider = try AnthropicProvider(model: .opus48, configuration: config)
+
+        let settings = GenerationSettings(
+            maxTokens: 64,
+            reasoningEffort: .low,
+        )
+
+        let request = ProviderRequest(
+            messages: [.user("hi")],
+            settings: settings,
+        )
+
+        let urlRequest = try provider.makeURLRequest(for: request, stream: false)
+        let body = try #require(urlRequest.httpBody)
+        let json = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+        let outputConfig = try #require(json["output_config"] as? [String: Any])
+
+        #expect(json["thinking"] == nil)
+        #expect(outputConfig["effort"] as? String == "low")
+    }
+
+    @Test
+    func `Unsupported adaptive thinking is omitted for older Claude models`() throws {
+        let config = TachikomaConfiguration(apiKeys: ["anthropic": "test-key"])
+        let provider = try AnthropicProvider(model: .opus45, configuration: config)
+
+        let settings = GenerationSettings(
+            maxTokens: 64,
+            providerOptions: .init(anthropic: .init(thinking: .adaptive)),
+        )
+
+        let request = ProviderRequest(
+            messages: [.user("hi")],
+            settings: settings,
+        )
+
+        let urlRequest = try provider.makeURLRequest(for: request, stream: false)
+        let body = try #require(urlRequest.httpBody)
+        let json = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+
+        #expect(json["thinking"] == nil)
+        #expect(json["output_config"] == nil)
+    }
+
+    @Test
+    func `Sonnet 4_6 request keeps adaptive thinking payload`() throws {
+        let config = TachikomaConfiguration(apiKeys: ["anthropic": "test-key"])
+        let provider = try AnthropicProvider(model: .sonnet46, configuration: config)
+
+        let settings = GenerationSettings(
+            maxTokens: 64,
+            reasoningEffort: .medium,
+            providerOptions: .init(anthropic: .init(thinking: .adaptive)),
+        )
+
+        let request = ProviderRequest(
+            messages: [.user("hi")],
+            settings: settings,
+        )
+
+        let urlRequest = try provider.makeURLRequest(for: request, stream: false)
+        let body = try #require(urlRequest.httpBody)
+        let json = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+        let thinking = try #require(json["thinking"] as? [String: Any])
+        let outputConfig = try #require(json["output_config"] as? [String: Any])
+
+        #expect(json["model"] as? String == "claude-sonnet-4-6")
+        #expect(thinking["type"] as? String == "adaptive")
+        #expect(outputConfig["effort"] as? String == "medium")
+    }
+
+    @Test
+    func `Custom Anthropic request keeps thinking payload`() throws {
+        let config = TachikomaConfiguration(apiKeys: ["anthropic": "test-key"])
+        let provider = try AnthropicProvider(model: .custom("claude-opus-4-5-latest"), configuration: config)
+
+        let settings = GenerationSettings(
+            maxTokens: 64,
+            providerOptions: .init(anthropic: .init(thinking: .enabled(budgetTokens: 12000))),
+        )
+
+        let request = ProviderRequest(
+            messages: [.user("hi")],
+            settings: settings,
+        )
+
+        let urlRequest = try provider.makeURLRequest(for: request, stream: false)
+        let body = try #require(urlRequest.httpBody)
+        let json = try #require(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+        let thinking = try #require(json["thinking"] as? [String: Any])
+
+        #expect(json["model"] as? String == "claude-opus-4-5-latest")
         #expect(thinking["type"] as? String == "enabled")
         #expect(thinking["budget_tokens"] as? Int == 12000)
     }

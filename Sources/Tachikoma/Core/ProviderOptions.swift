@@ -159,6 +159,7 @@ public struct AnthropicOptions: Sendable, Codable {
     public enum ThinkingMode: Sendable, Codable {
         case disabled
         case enabled(budgetTokens: Int)
+        case adaptive
 
         private enum CodingKeys: String, CodingKey {
             case type
@@ -174,6 +175,8 @@ public struct AnthropicOptions: Sendable, Codable {
             case "enabled":
                 let budget = try container.decode(Int.self, forKey: .budgetTokens)
                 self = .enabled(budgetTokens: budget)
+            case "adaptive":
+                self = .adaptive
             default:
                 throw DecodingError.dataCorruptedError(
                     forKey: .type,
@@ -191,6 +194,8 @@ public struct AnthropicOptions: Sendable, Codable {
             case let .enabled(budgetTokens):
                 try container.encode("enabled", forKey: .type)
                 try container.encode(budgetTokens, forKey: .budgetTokens)
+            case .adaptive:
+                try container.encode("adaptive", forKey: .type)
             }
         }
     }

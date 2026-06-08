@@ -208,6 +208,24 @@ enum ProviderOptionsTests {
         }
 
         @Test
+        func `Encode and decode Anthropic adaptive thinking mode`() throws {
+            let original = AnthropicOptions(
+                thinking: .adaptive,
+            )
+
+            let encoder = JSONEncoder()
+            let data = try encoder.encode(original)
+
+            let decoder = JSONDecoder()
+            let decoded = try decoder.decode(AnthropicOptions.self, from: data)
+
+            guard case .adaptive = decoded.thinking else {
+                Issue.record("Expected thinking to be adaptive")
+                return
+            }
+        }
+
+        @Test
         func `Encode and decode provider options container`() throws {
             let original = ProviderOptions(
                 openai: .init(verbosity: .low),

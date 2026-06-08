@@ -539,10 +539,11 @@ public struct ModelCostCalculator: Sendable {
             case .gpt5Nano: (0.50, 2.00) // GPT-5 Nano pricing estimate
             case .custom: (2.50, 10.00) // Default estimate
             }
-        // Anthropic Pricing (as of 2025)
+        // Anthropic Pricing (as of 2026)
         case let .anthropic(anthropicModel):
             switch anthropicModel {
-            case .opus47: (15.00, 75.00)
+            case .opus48: (5.00, 25.00)
+            case .opus47: (5.00, 25.00)
             case .opus45: (5.00, 25.00)
             case .opus4: (15.00, 75.00)
             case .sonnet46: (3.00, 15.00)
@@ -550,9 +551,10 @@ public struct ModelCostCalculator: Sendable {
             case .haiku45: (1.20, 6.00)
             case .custom: (3.00, 15.00) // Default estimate
             }
-        // Google Pricing (estimates)
+        // Google Pricing (standard tier, as of 2026)
         case let .google(googleModel):
             switch googleModel {
+            case .gemini35Flash: (1.50, 9.00)
             case .gemini31ProPreview: (1.25, 10.00)
             case .gemini31FlashLite: (0.10, 0.40)
             case .gemini3Flash: (0.50, 3.00)

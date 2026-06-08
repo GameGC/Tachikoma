@@ -259,7 +259,19 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
             ),
         )
 
-        self.capabilities["anthropic:claude-opus-4-7"] = claude4Capabilities
+        // Opus 4.7+ maps requested thinking to Anthropic's adaptive thinking request shape.
+        let claudeAdaptiveThinkingCapabilities = ModelParameterCapabilities(
+            supportsTemperature: false,
+            supportsTopP: false,
+            supportsTopK: false,
+            supportedProviderOptions: .init(
+                supportsThinking: true,
+                supportsCacheControl: true,
+            ),
+            excludedParameters: ["temperature", "topP", "topK"],
+        )
+        self.capabilities["anthropic:claude-opus-4-8"] = claudeAdaptiveThinkingCapabilities
+        self.capabilities["anthropic:claude-opus-4-7"] = claudeAdaptiveThinkingCapabilities
         self.capabilities["anthropic:claude-opus-4-5"] = claude4Capabilities
         self.capabilities["anthropic:claude-opus-4-1-20250805"] = claude4Capabilities
         self.capabilities["anthropic:claude-sonnet-4-6"] = claude4Capabilities
@@ -275,6 +287,7 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
             ),
         )
 
+        self.capabilities["google:gemini-3.5-flash"] = geminiCapabilities
         self.capabilities["google:gemini-3.1-pro-preview"] = geminiCapabilities
         self.capabilities["google:gemini-3.1-flash-lite"] = geminiCapabilities
         self.capabilities["google:gemini-2.5-pro"] = geminiCapabilities
@@ -342,6 +355,7 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
             // Default Anthropic capabilities
             return ModelParameterCapabilities(
                 supportedProviderOptions: .init(
+                    supportsThinking: true,
                     supportsCacheControl: true,
                 ),
             )
@@ -382,6 +396,7 @@ extension GenerationSettings {
 
         var adjustedTemperature = temperature
         var adjustedTopP = topP
+        var adjustedTopK = topK
         var adjustedFrequencyPenalty = frequencyPenalty
         var adjustedPresencePenalty = presencePenalty
         var adjustedProviderOptions = providerOptions
@@ -392,6 +407,9 @@ extension GenerationSettings {
         }
         if capabilities.excludedParameters.contains("topP") {
             adjustedTopP = nil
+        }
+        if capabilities.excludedParameters.contains("topK") {
+            adjustedTopK = nil
         }
         if capabilities.excludedParameters.contains("frequencyPenalty") {
             adjustedFrequencyPenalty = nil
@@ -416,7 +434,7 @@ extension GenerationSettings {
             maxTokens: maxTokens,
             temperature: adjustedTemperature,
             topP: adjustedTopP,
-            topK: topK,
+            topK: adjustedTopK,
             frequencyPenalty: adjustedFrequencyPenalty,
             presencePenalty: adjustedPresencePenalty,
             stopSequences: stopSequences,
