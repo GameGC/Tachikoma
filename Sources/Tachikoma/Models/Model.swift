@@ -406,8 +406,10 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
 
         public var supportsVision: Bool {
             switch self {
-            case .grok43, .custom: true
-            default: false
+            case .grok43, .grok420Reasoning, .grok420NonReasoning, .custom:
+                true
+            case .grok420MultiAgent:
+                false
             }
         }
 

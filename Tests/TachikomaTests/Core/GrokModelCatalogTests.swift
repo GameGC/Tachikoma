@@ -50,8 +50,8 @@ struct GrokModelCatalogTests {
         self.requireModernPlatforms {
             #expect(Model.grok(.grok43).supportsVision)
             #expect(Model.grok(.grok420MultiAgent).supportsVision == false)
-            #expect(Model.grok(.grok420Reasoning).supportsVision == false)
-            #expect(Model.grok(.grok420NonReasoning).supportsVision == false)
+            #expect(Model.grok(.grok420Reasoning).supportsVision)
+            #expect(Model.grok(.grok420NonReasoning).supportsVision)
         }
     }
 
