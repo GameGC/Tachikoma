@@ -44,10 +44,11 @@ public struct ModelSelector {
             return .grok(grokModel)
         }
 
+        let isProviderQualifiedGrokModel = normalized.contains("/") && normalized.contains("grok")
         if
             Self.isUnsupportedLegacyOpenAIModel(normalized) ||
             Self.isUnsupportedLegacyAnthropicModel(normalized) ||
-            Self.isUnsupportedLegacyGrokModel(normalized)
+            (Self.isUnsupportedLegacyGrokModel(normalized) && !isProviderQualifiedGrokModel)
         {
             throw ModelValidationError.unsupportedModel(modelString)
         }
@@ -230,8 +231,6 @@ public struct ModelSelector {
         // Direct matches for available models only
         case "grok-4.3", "grok-4-3", "grok43", "grok-4.3-latest", "grok-4-latest", "grok-4", "grok-latest":
             return .grok43
-        case "grok-4.20-multi-agent-0309", "grok-4-20-multi-agent-0309":
-            return .grok420MultiAgent
         case "grok-4.20-0309-reasoning", "grok-4-20-0309-reasoning":
             return .grok420Reasoning
         case "grok-4.20-0309-non-reasoning", "grok-4-20-0309-non-reasoning":
@@ -298,6 +297,9 @@ public struct ModelSelector {
             normalized.hasPrefix("grok-4-fast") ||
             normalized.hasPrefix("grok-code-fast") ||
             normalized == "grok-4-0709" ||
+            normalized.contains("grok-4.20-multi-agent") ||
+            normalized.contains("grok-4-20-multi-agent") ||
+            normalized.contains("grok420multiagent") ||
             normalized.contains("grok-beta") ||
             normalized.contains("grok-vision-beta")
     }

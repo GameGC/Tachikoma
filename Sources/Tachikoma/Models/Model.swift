@@ -388,7 +388,6 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public static var allCases: [Grok] {
             [
                 .grok43,
-                .grok420MultiAgent,
                 .grok420Reasoning,
                 .grok420NonReasoning,
             ]
@@ -415,7 +414,12 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         }
 
         public var supportsTools: Bool {
-            true
+            switch self {
+            case .grok420MultiAgent:
+                false
+            default:
+                true
+            }
         }
 
         public var supportsAudioInput: Bool {
@@ -1415,14 +1419,13 @@ extension LanguageModel {
             normalized.hasPrefix("grok-4-fast") ||
             normalized.hasPrefix("grok-code-fast") ||
             normalized == "grok-4-0709" ||
+            normalized.contains("grok-4.20-multi-agent") ||
+            dotted.contains("grok-4-20-multi-agent") ||
+            compact.contains("grok420multiagent") ||
             normalized.contains("grok-beta") ||
             normalized.contains("grok-vision-beta")
         if unsupportedGrok {
             return nil
-        }
-
-        if dotted.contains("grok-4-20-multi-agent") || compact.contains("grok420multiagent") {
-            return .grok(.grok420MultiAgent)
         }
 
         if dotted.contains("grok-4-20-0309-reasoning") || compact.contains("grok4200309reasoning") {
@@ -1587,6 +1590,9 @@ extension LanguageModel {
             normalized.hasPrefix("grok-4-fast") ||
             normalized.hasPrefix("grok-code-fast") ||
             normalized == "grok-4-0709" ||
+            normalized.contains("grok-4.20-multi-agent") ||
+            normalized.contains("grok-4-20-multi-agent") ||
+            normalized.contains("grok420multiagent") ||
             normalized.contains("grok-beta") ||
             normalized.contains("grok-vision-beta")
     }

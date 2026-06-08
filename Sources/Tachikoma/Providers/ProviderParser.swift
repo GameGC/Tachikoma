@@ -337,8 +337,6 @@ public enum ProviderParser {
         switch modelString.lowercased() {
         case "grok-4.3", "grok-4-3", "grok43", "grok-4.3-latest", "grok-4-latest", "grok-4", "grok-latest":
             return .grok(.grok43)
-        case "grok-4.20-multi-agent-0309", "grok-4-20-multi-agent-0309":
-            return .grok(.grok420MultiAgent)
         case "grok-4.20-0309-reasoning", "grok-4-20-0309-reasoning":
             return .grok(.grok420Reasoning)
         case "grok-4.20-0309-non-reasoning", "grok-4-20-0309-non-reasoning":
@@ -358,6 +356,9 @@ public enum ProviderParser {
             normalized.hasPrefix("grok-4-fast") ||
             normalized.hasPrefix("grok-code-fast") ||
             normalized == "grok-4-0709" ||
+            normalized.contains("grok-4.20-multi-agent") ||
+            normalized.contains("grok-4-20-multi-agent") ||
+            normalized.contains("grok420multiagent") ||
             normalized.contains("grok-beta") ||
             normalized.contains("grok-vision-beta")
     }

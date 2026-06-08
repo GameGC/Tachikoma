@@ -333,7 +333,6 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
         )
 
         self.capabilities["grok:grok-4.3"] = grokCapabilities
-        self.capabilities["grok:grok-4.20-multi-agent-0309"] = grokCapabilities
         self.capabilities["grok:grok-4.20-0309-reasoning"] = grokCapabilities
         self.capabilities["grok:grok-4.20-0309-non-reasoning"] = grokCapabilities
     }

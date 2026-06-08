@@ -5,7 +5,6 @@ import Testing
 struct GrokModelCatalogTests {
     private static let catalog: [Model.Grok] = [
         .grok43,
-        .grok420MultiAgent,
         .grok420Reasoning,
         .grok420NonReasoning,
     ]
@@ -49,16 +48,25 @@ struct GrokModelCatalogTests {
     func `Grok model vision support matches current xAI catalog`() {
         self.requireModernPlatforms {
             #expect(Model.grok(.grok43).supportsVision)
-            #expect(Model.grok(.grok420MultiAgent).supportsVision == false)
             #expect(Model.grok(.grok420Reasoning).supportsVision)
             #expect(Model.grok(.grok420NonReasoning).supportsVision)
+            #expect(Model.grok(.grok420MultiAgent).supportsVision == false)
+            #expect(Model.grok(.grok420MultiAgent).supportsTools == false)
         }
     }
 
     @Test
-    func `ModelSelector rejects retired Grok identifiers`() {
+    func `ModelSelector rejects retired and unsupported Grok identifiers`() {
         self.requireModernPlatforms {
-            for id in ["grok-4-0709", "grok-3", "grok-2-1212", "grok-4-fast", "grok-code-fast-1"] {
+            for id in [
+                "grok-4-0709",
+                "grok-3",
+                "grok-2-1212",
+                "grok-4-fast",
+                "grok-code-fast-1",
+                "grok-4.20-multi-agent-0309",
+                "grok420multiagent",
+            ] {
                 #expect(throws: ModelValidationError.self) {
                     _ = try ModelSelector.parseModel(id)
                 }
@@ -70,8 +78,27 @@ struct GrokModelCatalogTests {
     func `ModelSelector preserves provider-qualified Grok slugs as OpenRouter IDs`() throws {
         try self.requireModernPlatforms {
             let parsed = try ModelSelector.parseModel("xai/grok-code-fast-1")
+            let multiAgent = try ModelSelector.parseModel("x-ai/grok-4.20-multi-agent")
 
             #expect(parsed == .openRouter(modelId: "xai/grok-code-fast-1"))
+            #expect(multiAgent == .openRouter(modelId: "x-ai/grok-4.20-multi-agent"))
+        }
+    }
+
+    @Test
+    func `Grok provider rejects multi-agent until Responses routing exists`() throws {
+        self.requireModernPlatforms {
+            let config = TachikomaConfiguration(apiKeys: ["grok": "test-key"])
+
+            #expect(throws: TachikomaError.self) {
+                _ = try ProviderFactory.createProvider(for: .grok(.grok420MultiAgent), configuration: config)
+            }
+            #expect(throws: TachikomaError.self) {
+                _ = try GrokProvider(model: .grok420MultiAgent, configuration: config)
+            }
+            #expect(throws: TachikomaError.self) {
+                _ = try GrokProvider(model: .custom("grok420multiagent"), configuration: config)
+            }
         }
     }
 }

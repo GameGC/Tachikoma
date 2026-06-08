@@ -39,7 +39,6 @@ Notes:
 ## xAI Grok (`LanguageModel.Grok`)
 
 - `grok-4.3`
-- `grok-4.20-multi-agent-0309`
 - `grok-4.20-0309-reasoning`, `grok-4.20-0309-non-reasoning`
 
 ## Mistral (`LanguageModel.Mistral`)

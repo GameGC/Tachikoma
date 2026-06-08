@@ -11,8 +11,15 @@ public final class GrokProvider: ModelProvider {
     private let model: LanguageModel.Grok
 
     public init(model: LanguageModel.Grok, configuration: TachikomaConfiguration) throws {
+        let modelId = model.modelId
+        guard !Self.requiresResponsesAPIRouting(modelId) else {
+            throw TachikomaError.unsupportedOperation(
+                "\(modelId) requires xAI Responses API routing"
+            )
+        }
+
         self.model = model
-        self.modelId = model.modelId
+        self.modelId = modelId
         self.baseURL = configuration.getBaseURL(for: .grok) ?? "https://api.x.ai/v1"
 
         // Get API key from configuration system (environment or credentials)
@@ -29,6 +36,16 @@ public final class GrokProvider: ModelProvider {
             contextLength: model.contextLength,
             maxOutputTokens: 4096,
         )
+    }
+
+    private static func requiresResponsesAPIRouting(_ modelId: String) -> Bool {
+        let normalized = modelId.lowercased()
+        let compact = normalized
+            .replacingOccurrences(of: "-", with: "")
+            .replacingOccurrences(of: ".", with: "")
+        return normalized.contains("grok-4.20-multi-agent") ||
+            normalized.contains("grok-4-20-multi-agent") ||
+            compact.contains("grok420multiagent")
     }
 
     public func generateText(request: ProviderRequest) async throws -> ProviderResponse {

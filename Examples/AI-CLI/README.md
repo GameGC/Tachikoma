@@ -71,7 +71,7 @@ Add to your shell profile (`~/.zshrc`, `~/.bashrc`) for persistence.
 ### Others
 - **Mistral**: `mistral-large-latest`, `mistral-medium-latest`, `mistral-medium-3-5`, `mistral-small-latest`, `open-mistral-nemo-2407`, `codestral-latest`
 - **Groq**: `openai/gpt-oss-120b`, `openai/gpt-oss-20b`, `llama-3.3-70b-versatile`, `llama-3.1-8b-instant`
-- **Grok**: `grok-4.3`, `grok-4.20-multi-agent-0309`, `grok-4.20-0309-reasoning`, `grok-4.20-0309-non-reasoning`
+- **Grok**: `grok-4.3`, `grok-4.20-0309-reasoning`, `grok-4.20-0309-non-reasoning`
 - **Ollama** (local): `llama3.3`, `llava`, any installed model
 
 ### Model Shortcuts
