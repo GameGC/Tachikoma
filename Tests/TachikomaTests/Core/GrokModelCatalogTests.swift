@@ -56,32 +56,42 @@ struct GrokModelCatalogTests {
     }
 
     @Test
-    func `ModelSelector rejects retired and unsupported Grok identifiers`() {
-        self.requireModernPlatforms {
+    func `ModelSelector preserves server-redirected Grok identifiers`() throws {
+        try self.requireModernPlatforms {
             for id in [
                 "grok-4-0709",
                 "grok-3",
                 "grok-2-1212",
                 "grok-4-fast",
                 "grok-code-fast-1",
-                "grok-4.20-multi-agent-0309",
-                "grok420multiagent",
             ] {
-                #expect(throws: ModelValidationError.self) {
-                    _ = try ModelSelector.parseModel(id)
-                }
+                let parsed = try ModelSelector.parseModel(id)
+                #expect(parsed == .grok(.custom(id)))
             }
         }
     }
 
     @Test
-    func `ModelSelector preserves provider-qualified Grok slugs as OpenRouter IDs`() throws {
+    func `ModelSelector keeps provider-qualified Grok slugs on xAI`() throws {
         try self.requireModernPlatforms {
             let parsed = try ModelSelector.parseModel("xai/grok-code-fast-1")
-            let multiAgent = try ModelSelector.parseModel("x-ai/grok-4.20-multi-agent")
 
-            #expect(parsed == .openRouter(modelId: "xai/grok-code-fast-1"))
-            #expect(multiAgent == .openRouter(modelId: "x-ai/grok-4.20-multi-agent"))
+            #expect(parsed == .grok(.custom("grok-code-fast-1")))
+        }
+    }
+
+    @Test
+    func `ModelSelector rejects unsupported Grok multi-agent identifiers`() {
+        self.requireModernPlatforms {
+            for id in [
+                "grok-4.20-multi-agent-0309",
+                "grok420multiagent",
+                "xai/grok-4.20-multi-agent",
+            ] {
+                #expect(throws: ModelValidationError.self) {
+                    _ = try ModelSelector.parseModel(id)
+                }
+            }
         }
     }
 

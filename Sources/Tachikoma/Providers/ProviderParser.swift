@@ -351,16 +351,9 @@ public enum ProviderParser {
 
     private static func isUnsupportedLegacyGrokModel(_ modelString: String) -> Bool {
         let normalized = modelString.lowercased()
-        return normalized.hasPrefix("grok-2") ||
-            normalized.hasPrefix("grok-3") ||
-            normalized.hasPrefix("grok-4-fast") ||
-            normalized.hasPrefix("grok-code-fast") ||
-            normalized == "grok-4-0709" ||
-            normalized.contains("grok-4.20-multi-agent") ||
+        return normalized.contains("grok-4.20-multi-agent") ||
             normalized.contains("grok-4-20-multi-agent") ||
-            normalized.contains("grok420multiagent") ||
-            normalized.contains("grok-beta") ||
-            normalized.contains("grok-vision-beta")
+            normalized.contains("grok420multiagent")
     }
 
     private static func parseOllamaModel(_ modelString: String) -> LanguageModel? {

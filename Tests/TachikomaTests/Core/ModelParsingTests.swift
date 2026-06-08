@@ -79,7 +79,7 @@ struct ModelParsingTests {
         #expect(LanguageModel.parse(from: "xai/grok-4.3-latest") == .grok(.grok43))
         #expect(LanguageModel.parse(from: "grok-4-latest") == .grok(.grok43))
         #expect(LanguageModel.parse(from: "grok-4") == .grok(.grok43))
-        #expect(LanguageModel.parse(from: "xai/grok-code-fast-1") == nil)
+        #expect(LanguageModel.parse(from: "xai/grok-code-fast-1") == .grok(.custom("grok-code-fast-1")))
         #expect(try ModelSelector.parseModel("grok-4") == .grok(.grok43))
     }
 
@@ -92,10 +92,10 @@ struct ModelParsingTests {
     }
 
     @Test
-    func `ModelSelector keeps plain slash IDs as OpenRouter models`() throws {
+    func `ModelSelector keeps generic slash IDs as OpenRouter models`() throws {
         #expect(try ModelSelector.parseModel("anthropic/claude-opus-4-8") == .openRouter(modelId: "anthropic/claude-opus-4-8"))
         #expect(try ModelSelector.parseModel("google/gemini-3.5-flash") == .openRouter(modelId: "google/gemini-3.5-flash"))
-        #expect(try ModelSelector.parseModel("xai/grok-4.3-latest") == .openRouter(modelId: "xai/grok-4.3-latest"))
+        #expect(try ModelSelector.parseModel("xai/grok-4.3-latest") == .grok(.grok43))
         #expect(try ModelSelector.parseModel("openai/claude") == .openRouter(modelId: "openai/claude"))
     }
 

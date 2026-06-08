@@ -44,11 +44,22 @@ public struct ModelSelector {
             return .grok(grokModel)
         }
 
-        let isProviderQualifiedGrokModel = normalized.contains("/") && normalized.contains("grok")
+        if let qualified = ProviderParser.parse(normalized),
+           ["grok", "xai", "x-ai"].contains(qualified.provider.lowercased())
+        {
+            let model = qualified.model.lowercased()
+            guard !Self.isUnsupportedLegacyGrokModel(model),
+                  let grokModel = self.parseGrokModel(model)
+            else {
+                throw ModelValidationError.unsupportedModel(modelString)
+            }
+            return .grok(grokModel)
+        }
+
         if
             Self.isUnsupportedLegacyOpenAIModel(normalized) ||
             Self.isUnsupportedLegacyAnthropicModel(normalized) ||
-            (Self.isUnsupportedLegacyGrokModel(normalized) && !isProviderQualifiedGrokModel)
+            Self.isUnsupportedLegacyGrokModel(normalized)
         {
             throw ModelValidationError.unsupportedModel(modelString)
         }
@@ -292,16 +303,9 @@ public struct ModelSelector {
 
     private static func isUnsupportedLegacyGrokModel(_ input: String) -> Bool {
         let normalized = input.lowercased()
-        return normalized.hasPrefix("grok-2") ||
-            normalized.hasPrefix("grok-3") ||
-            normalized.hasPrefix("grok-4-fast") ||
-            normalized.hasPrefix("grok-code-fast") ||
-            normalized == "grok-4-0709" ||
-            normalized.contains("grok-4.20-multi-agent") ||
+        return normalized.contains("grok-4.20-multi-agent") ||
             normalized.contains("grok-4-20-multi-agent") ||
-            normalized.contains("grok420multiagent") ||
-            normalized.contains("grok-beta") ||
-            normalized.contains("grok-vision-beta")
+            normalized.contains("grok420multiagent")
     }
 
     private static func parseOllamaModel(_ input: String) -> Model.Ollama? {

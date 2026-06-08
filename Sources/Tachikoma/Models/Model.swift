@@ -1414,16 +1414,9 @@ extension LanguageModel {
 
         // MARK: Grok models
 
-        let unsupportedGrok = normalized.hasPrefix("grok-2") ||
-            normalized.hasPrefix("grok-3") ||
-            normalized.hasPrefix("grok-4-fast") ||
-            normalized.hasPrefix("grok-code-fast") ||
-            normalized == "grok-4-0709" ||
-            normalized.contains("grok-4.20-multi-agent") ||
+        let unsupportedGrok = normalized.contains("grok-4.20-multi-agent") ||
             dotted.contains("grok-4-20-multi-agent") ||
-            compact.contains("grok420multiagent") ||
-            normalized.contains("grok-beta") ||
-            normalized.contains("grok-vision-beta")
+            compact.contains("grok420multiagent")
         if unsupportedGrok {
             return nil
         }
@@ -1585,16 +1578,9 @@ extension LanguageModel {
     }
 
     private static func isUnsupportedGrok(_ normalized: String) -> Bool {
-        normalized.hasPrefix("grok-2") ||
-            normalized.hasPrefix("grok-3") ||
-            normalized.hasPrefix("grok-4-fast") ||
-            normalized.hasPrefix("grok-code-fast") ||
-            normalized == "grok-4-0709" ||
-            normalized.contains("grok-4.20-multi-agent") ||
+        normalized.contains("grok-4.20-multi-agent") ||
             normalized.contains("grok-4-20-multi-agent") ||
-            normalized.contains("grok420multiagent") ||
-            normalized.contains("grok-beta") ||
-            normalized.contains("grok-vision-beta")
+            normalized.contains("grok420multiagent")
     }
 
     private static func parseOllamaModelIdentifier(_ modelString: String) -> Ollama {
