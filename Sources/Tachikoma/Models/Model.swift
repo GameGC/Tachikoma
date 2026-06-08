@@ -409,6 +409,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
             case .grok43, .grok420Reasoning, .grok420NonReasoning, .custom:
                 true
             case .grok420MultiAgent:
+                // Upstream supports images, but this model requires Responses API routing.
                 false
             }
         }
