@@ -14,7 +14,7 @@ public final class GrokProvider: ModelProvider {
         let modelId = model.modelId
         guard !Self.requiresResponsesAPIRouting(modelId) else {
             throw TachikomaError.unsupportedOperation(
-                "\(modelId) requires xAI Responses API routing"
+                "\(modelId) requires xAI Responses API routing",
             )
         }
 

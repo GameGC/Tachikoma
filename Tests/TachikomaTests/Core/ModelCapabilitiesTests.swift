@@ -96,7 +96,8 @@ enum ModelCapabilitiesTests {
 
         @Test
         func `Custom Anthropic models keep thinking options by default`() {
-            let capabilities = ModelCapabilityRegistry.shared.capabilities(for: .anthropic(.custom("claude-opus-latest")))
+            let capabilities = ModelCapabilityRegistry.shared
+                .capabilities(for: .anthropic(.custom("claude-opus-latest")))
 
             #expect(capabilities.supportedProviderOptions.supportsThinking)
             #expect(capabilities.supportedProviderOptions.supportsCacheControl)

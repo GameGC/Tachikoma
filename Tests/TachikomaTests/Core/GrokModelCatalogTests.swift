@@ -96,7 +96,7 @@ struct GrokModelCatalogTests {
     }
 
     @Test
-    func `Grok provider rejects multi-agent until Responses routing exists`() throws {
+    func `Grok provider rejects multi-agent until Responses routing exists`() {
         self.requireModernPlatforms {
             let config = TachikomaConfiguration(apiKeys: ["grok": "test-key"])
 

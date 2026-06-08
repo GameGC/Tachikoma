@@ -109,7 +109,9 @@ public final class AnthropicProvider: ModelProvider {
     private func anthropicThinking(
         from mode: AnthropicOptions.ThinkingMode?,
         model: LanguageModel.Anthropic,
-    ) -> AnthropicThinking? {
+    )
+        -> AnthropicThinking?
+    {
         guard let mode else { return nil }
         switch mode {
         case .disabled:
@@ -132,7 +134,9 @@ public final class AnthropicProvider: ModelProvider {
         from mode: AnthropicOptions.ThinkingMode?,
         settings: GenerationSettings,
         model: LanguageModel.Anthropic,
-    ) -> AnthropicOutputConfig? {
+    )
+        -> AnthropicOutputConfig?
+    {
         guard self.supportsEffort(model: model) else { return nil }
         if let effort = settings.reasoningEffort?.rawValue {
             return AnthropicOutputConfig(effort: effort)
@@ -153,17 +157,17 @@ public final class AnthropicProvider: ModelProvider {
     private func supportsEffort(model: LanguageModel.Anthropic) -> Bool {
         switch model {
         case .opus48, .opus47, .opus45, .sonnet46:
-            return true
+            true
         default:
-            return false
+            false
         }
     }
 
     private func adaptiveEffort(from mode: AnthropicOptions.ThinkingMode?) -> String? {
         guard case let .enabled(budgetTokens) = mode else { return nil }
 
-        if budgetTokens <= 4_096 { return ReasoningEffort.low.rawValue }
-        if budgetTokens <= 12_000 { return ReasoningEffort.medium.rawValue }
+        if budgetTokens <= 4096 { return ReasoningEffort.low.rawValue }
+        if budgetTokens <= 12000 { return ReasoningEffort.medium.rawValue }
         return ReasoningEffort.high.rawValue
     }
 
