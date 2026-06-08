@@ -135,9 +135,9 @@ struct UsageTrackingTests {
 
         // Test Google pricing
         let geminiFlashCost = calculator.calculateCost(for: .google(.gemini35Flash), usage: usage)
-        #expect(geminiFlashCost.input == 1.50)
-        #expect(geminiFlashCost.output == 9.00)
-        #expect(geminiFlashCost.total == 10.50)
+        #expect(geminiFlashCost.input == 2.70)
+        #expect(geminiFlashCost.output == 16.20)
+        #expect(geminiFlashCost.total == 18.90)
 
         // Test Ollama (should be free)
         let ollamaCost = calculator.calculateCost(for: .ollama(.llama33), usage: usage)
