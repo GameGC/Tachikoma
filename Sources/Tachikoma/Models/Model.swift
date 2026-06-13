@@ -57,6 +57,7 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         public static var allCases: [OpenAI] {
             [
                 .chatLatest,
+                .gpt5ChatLatest,
                 .gpt55,
                 .gpt54,
                 .gpt54Mini,

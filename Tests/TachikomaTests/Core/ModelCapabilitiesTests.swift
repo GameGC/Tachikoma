@@ -7,6 +7,7 @@ enum ModelCapabilitiesTests {
         @Test
         func `GPT-5 models exclude temperature and topP`() {
             let models: [LanguageModel] = [
+                .openai(.gpt5ChatLatest),
                 .openai(.gpt55),
                 .openai(.gpt54),
                 .openai(.gpt54Mini),

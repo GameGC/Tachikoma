@@ -242,6 +242,7 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
         )
 
         self.capabilities["openai:chat-latest"] = gpt5Capabilities
+        self.capabilities["openai:gpt-5-chat-latest"] = gpt5Capabilities
         self.capabilities["openai:gpt-5.5"] = gpt5Capabilities
         self.capabilities["openai:gpt-5.4"] = gpt5Capabilities
         self.capabilities["openai:gpt-5.4-mini"] = gpt5Capabilities

@@ -6,6 +6,7 @@ struct LanguageModelCoverageTests {
     func `OpenAI enum exposes properties`() {
         let models = LanguageModel.OpenAI.allCases
         #expect(!models.isEmpty)
+        #expect(models.contains(.gpt5ChatLatest))
         for model in models {
             #expect(!model.modelId.isEmpty)
             _ = model.supportsVision
