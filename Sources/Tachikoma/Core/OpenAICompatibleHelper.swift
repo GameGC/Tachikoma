@@ -45,18 +45,22 @@ struct OpenAICompatibleHelper {
         let stopSequences = Self.extractStopSequences(from: settings.stopConditions)
 
         // Convert request to OpenAI-compatible format
+        let messages = try self.convertMessages(
+            request.messages,
+            replayOpenRouterReasoningForModel: providerName == "OpenRouter" ? modelId : nil,
+            replayOpenRouterReasoningForBaseURL: providerName == "OpenRouter" ? baseURL : nil,
+            replayKimiReasoningForModel: providerName == "Kimi" ? modelId : nil,
+            replayKimiReasoningForBaseURL: providerName == "Kimi" ? baseURL : nil,
+        )
         let openAIRequest = try OpenAIChatRequest(
             model: modelId,
-            messages: convertMessages(
-                request.messages,
-                replayOpenRouterReasoningForModel: providerName == "OpenRouter" ? modelId : nil,
-                replayOpenRouterReasoningForBaseURL: providerName == "OpenRouter" ? baseURL : nil,
-            ),
+            messages: messages,
             temperature: settings.temperature,
             maxTokens: settings.maxTokens,
             tools: request.tools?.compactMap { try self.convertTool($0) },
             stream: false,
             stop: stopSequences.isEmpty ? nil : stopSequences,
+            thinking: Self.kimiThinkingConfiguration(providerName: providerName, modelId: modelId, messages: messages),
         )
 
         let encoder = JSONEncoder()
@@ -110,7 +114,7 @@ struct OpenAICompatibleHelper {
         let usage = openAIResponse.usage.map {
             Usage(inputTokens: $0.promptTokens ?? 0, outputTokens: $0.completionTokens ?? 0)
         }
-        let reasoning = Self.reasoningBlocks(from: choice.message)
+        let reasoning = Self.reasoningBlocks(from: choice.message, providerName: providerName)
 
         let finishReason = Self.mapFinishReason(choice.finishReason)
 
@@ -191,18 +195,22 @@ struct OpenAICompatibleHelper {
         let stopSequences = Self.extractStopSequences(from: settings.stopConditions)
 
         // Convert request to OpenAI-compatible format
+        let messages = try self.convertMessages(
+            request.messages,
+            replayOpenRouterReasoningForModel: providerName == "OpenRouter" ? modelId : nil,
+            replayOpenRouterReasoningForBaseURL: providerName == "OpenRouter" ? baseURL : nil,
+            replayKimiReasoningForModel: providerName == "Kimi" ? modelId : nil,
+            replayKimiReasoningForBaseURL: providerName == "Kimi" ? baseURL : nil,
+        )
         let openAIRequest = try OpenAIChatRequest(
             model: modelId,
-            messages: convertMessages(
-                request.messages,
-                replayOpenRouterReasoningForModel: providerName == "OpenRouter" ? modelId : nil,
-                replayOpenRouterReasoningForBaseURL: providerName == "OpenRouter" ? baseURL : nil,
-            ),
+            messages: messages,
             temperature: settings.temperature,
             maxTokens: settings.maxTokens,
             tools: request.tools?.compactMap { try self.convertTool($0) },
             stream: true,
             stop: stopSequences.isEmpty ? nil : stopSequences,
+            thinking: Self.kimiThinkingConfiguration(providerName: providerName, modelId: modelId, messages: messages),
         )
 
         let encoder = JSONEncoder()
@@ -322,6 +330,18 @@ struct OpenAICompatibleHelper {
                                         hasReceivedContent = true
                                     }
 
+                                    if
+                                        providerName == "Kimi",
+                                        let reasoning = choice.delta.reasoningContent,
+                                        !reasoning.isEmpty
+                                    {
+                                        continuation.yield(TextStreamDelta.reasoning(
+                                            reasoning,
+                                            type: "kimi_reasoning_content",
+                                        ))
+                                        hasReceivedContent = true
+                                    }
+
                                     // Handle tool calls - Grok sends them all at once
                                     if let toolCalls = choice.delta.toolCalls {
                                         for toolCall in toolCalls {
@@ -417,6 +437,18 @@ struct OpenAICompatibleHelper {
                                         hasReceivedContent = true
                                     }
 
+                                    if
+                                        providerName == "Kimi",
+                                        let reasoning = choice.delta.reasoningContent,
+                                        !reasoning.isEmpty
+                                    {
+                                        continuation.yield(TextStreamDelta.reasoning(
+                                            reasoning,
+                                            type: "kimi_reasoning_content",
+                                        ))
+                                        hasReceivedContent = true
+                                    }
+
                                     // Handle tool calls - Grok sends them all at once
                                     if let toolCalls = choice.delta.toolCalls {
                                         for toolCall in toolCalls {
@@ -502,6 +534,8 @@ struct OpenAICompatibleHelper {
 
     private static func languageModel(providerName: String, modelId: String, baseURL: String) -> LanguageModel {
         switch providerName.lowercased() {
+        case "kimi":
+            .kimi(LanguageModel.Kimi(rawValue: modelId) ?? .k26)
         case "openrouter":
             .openRouter(modelId: modelId)
         case "together":
@@ -567,10 +601,30 @@ struct OpenAICompatibleHelper {
         }
     }
 
+    private static func kimiThinkingConfiguration(
+        providerName: String,
+        modelId: String,
+        messages: [OpenAIChatMessage],
+    )
+        -> OpenAIThinkingConfiguration?
+    {
+        guard
+            providerName == "Kimi",
+            modelId == LanguageModel.Kimi.k26.modelId,
+            messages.contains(where: { $0.reasoningContent?.isEmpty == false }) else
+        {
+            return nil
+        }
+
+        return OpenAIThinkingConfiguration(type: "enabled", keep: "all")
+    }
+
     private static func convertMessages(
         _ messages: [ModelMessage],
         replayOpenRouterReasoningForModel modelId: String?,
         replayOpenRouterReasoningForBaseURL baseURL: String?,
+        replayKimiReasoningForModel kimiModelId: String?,
+        replayKimiReasoningForBaseURL kimiBaseURL: String?,
     ) throws
         -> [OpenAIChatMessage]
     {
@@ -578,6 +632,8 @@ struct OpenAICompatibleHelper {
         var pendingReasoningDetails: [JSONValue] = []
         var pendingReasoningText: [String] = []
         let endpointIdentity = ReasoningEndpointIdentity.canonical(baseURL)
+        var pendingKimiReasoningContent: [String] = []
+        let kimiEndpointIdentity = ReasoningEndpointIdentity.canonical(kimiBaseURL)
 
         for message in messages {
             if
@@ -589,6 +645,17 @@ struct OpenAICompatibleHelper {
                 let rawReasoningDetails = customData["openrouter.reasoning_details"]
             {
                 pendingReasoningDetails.append(contentsOf: Self.decodeReasoningDetails(rawReasoningDetails))
+                continue
+            }
+            if
+                message.channel == .thinking,
+                let customData = message.metadata?.customData,
+                customData["tachikoma.reasoning.provider"] == "kimi",
+                customData["tachikoma.reasoning.model"] == kimiModelId,
+                customData["tachikoma.reasoning.base_url"] == kimiEndpointIdentity,
+                let reasoning = customData["kimi.reasoning_content"]
+            {
+                pendingKimiReasoningContent.append(reasoning)
                 continue
             }
             if
@@ -669,6 +736,9 @@ struct OpenAICompatibleHelper {
                         toolCalls: toolCalls,
                         reasoning: pendingReasoningText.isEmpty ? nil : pendingReasoningText.joined(separator: "\n"),
                         reasoningDetails: pendingReasoningDetails.isEmpty ? nil : pendingReasoningDetails,
+                        reasoningContent: pendingKimiReasoningContent.isEmpty
+                            ? nil
+                            : pendingKimiReasoningContent.joined(separator: "\n"),
                     ))
                 } else {
                     // Regular text message
@@ -678,10 +748,14 @@ struct OpenAICompatibleHelper {
                         toolCalls: nil,
                         reasoning: pendingReasoningText.isEmpty ? nil : pendingReasoningText.joined(separator: "\n"),
                         reasoningDetails: pendingReasoningDetails.isEmpty ? nil : pendingReasoningDetails,
+                        reasoningContent: pendingKimiReasoningContent.isEmpty
+                            ? nil
+                            : pendingKimiReasoningContent.joined(separator: "\n"),
                     ))
                 }
                 pendingReasoningText.removeAll()
                 pendingReasoningDetails.removeAll()
+                pendingKimiReasoningContent.removeAll()
             case .tool:
                 // Extract tool call ID and result content from tool result
                 var toolCallId: String?
@@ -707,8 +781,23 @@ struct OpenAICompatibleHelper {
         return converted
     }
 
-    private static func reasoningBlocks(from message: OpenAIChatResponse.Message) -> [ProviderReasoningBlock] {
+    private static func reasoningBlocks(
+        from message: OpenAIChatResponse.Message,
+        providerName: String,
+    )
+        -> [ProviderReasoningBlock]
+    {
         var blocks: [ProviderReasoningBlock] = []
+        if
+            providerName == "Kimi",
+            let reasoningContent = message.reasoningContent,
+            !reasoningContent.isEmpty
+        {
+            blocks.append(ProviderReasoningBlock(
+                text: reasoningContent,
+                type: "kimi_reasoning_content",
+            ))
+        }
         if let details = message.reasoningDetails, !details.isEmpty {
             blocks.append(ProviderReasoningBlock(
                 text: message.reasoning ?? "",

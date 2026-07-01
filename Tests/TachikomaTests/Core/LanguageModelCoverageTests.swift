@@ -60,6 +60,13 @@ struct LanguageModelCoverageTests {
             #expect(model.contextLength > 0)
         }
 
+        for model in LanguageModel.Kimi.allCases {
+            #expect(!model.modelId.isEmpty)
+            _ = model.supportsVision
+            _ = model.supportsTools
+            #expect(model.contextLength == 262_144)
+        }
+
         for model in LanguageModel.Ollama.allCases {
             #expect(!model.modelId.isEmpty)
             _ = model.supportsVision
@@ -84,6 +91,9 @@ struct LanguageModelCoverageTests {
             .grok(.grok43),
             .minimax(.m27),
             .minimaxCN(.m27),
+            .kimi(.k26),
+            .kimi(.k27Code),
+            .kimi(.k27CodeHighspeed),
             .ollama(.llama33),
             .lmstudio(.gptOSS20B),
             .openRouter(modelId: "openrouter/alpha"),

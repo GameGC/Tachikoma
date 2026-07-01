@@ -574,6 +574,11 @@ public struct ModelCostCalculator: Sendable {
             case .custom: (2.00, 8.00)
             }
         case .minimax, .minimaxCN: (0.30, 1.20)
+        case let .kimi(kimiModel):
+            switch kimiModel {
+            case .k27CodeHighspeed: (1.90, 8.00)
+            case .k27Code, .k26: (0.95, 4.00)
+            }
         case .ollama: (0.00, 0.00) // Local inference
         case .lmstudio: (0.00, 0.00) // Local inference
         case .openRouter, .together, .replicate: (1.00, 3.00) // Typical aggregator pricing

@@ -210,6 +210,8 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
             "minimax:\(submodel.modelId)"
         case let .minimaxCN(submodel):
             "minimax-cn:\(submodel.modelId)"
+        case let .kimi(submodel):
+            "kimi:\(submodel.modelId)"
         case let .openRouter(modelId):
             "openrouter:\(modelId)"
         case let .together(modelId):
@@ -337,6 +339,19 @@ public final class ModelCapabilityRegistry: @unchecked Sendable {
         self.capabilities["grok:grok-4.3"] = grokCapabilities
         self.capabilities["grok:grok-4.20-0309-reasoning"] = grokCapabilities
         self.capabilities["grok:grok-4.20-0309-non-reasoning"] = grokCapabilities
+
+        // Current Kimi thinking models require fixed sampling values.
+        let kimiCapabilities = ModelParameterCapabilities(
+            supportsTopP: false,
+            supportsFrequencyPenalty: false,
+            supportsPresencePenalty: false,
+            maxTokenLimit: 32768,
+            forcedTemperature: 1,
+            excludedParameters: ["topP", "frequencyPenalty", "presencePenalty"],
+        )
+        for model in LanguageModel.Kimi.allCases {
+            self.capabilities["kimi:\(model.modelId)"] = kimiCapabilities
+        }
     }
 
     private func defaultCapabilities(for model: LanguageModel) -> ModelParameterCapabilities {

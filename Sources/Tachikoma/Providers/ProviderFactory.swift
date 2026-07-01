@@ -80,6 +80,9 @@ public struct ProviderFactory {
                 configuration: configuration,
             )
 
+        case let .kimi(kimiModel):
+            return try KimiProvider(model: kimiModel, configuration: configuration)
+
         case let .openRouter(modelId):
             return try OpenRouterProvider(modelId: modelId, configuration: configuration)
 

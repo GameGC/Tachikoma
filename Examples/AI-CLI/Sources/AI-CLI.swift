@@ -376,6 +376,7 @@ struct AICLI {
         case .google: .google
         case .minimax: .minimax
         case .minimaxCN: .minimaxCN
+        case .kimi: .kimi
         case .mistral: .mistral
         case .groq: .groq
         case .grok: .grok
@@ -414,6 +415,10 @@ struct AICLI {
             print("export MINIMAX_CN_API_KEY='your-key-here'")
             print("# or reuse the global MiniMax key name:")
             print("export MINIMAX_API_KEY='your-key-here'")
+        case .kimi:
+            print("Set your Moonshot AI API key:")
+            print("export MOONSHOT_API_KEY='your-key-here'")
+            print("Setup guide: https://platform.kimi.ai/docs/guide/start-using-kimi-api")
         case .mistral:
             print("Set your Mistral API key:")
             print("export MISTRAL_API_KEY='your-key-here'")
