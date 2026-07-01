@@ -362,13 +362,17 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
     public enum MiniMax: String, Sendable, Hashable, CaseIterable {
         case m27 = "MiniMax-M2.7"
         case m27Highspeed = "MiniMax-M2.7-highspeed"
+        case m3 = "MiniMax-M3"
 
         public var modelId: String {
             self.rawValue
         }
 
         public var supportsVision: Bool {
-            false
+            switch self {
+            case .m3: true
+            case .m27, .m27Highspeed: false
+            }
         }
 
         public var supportsTools: Bool {
@@ -384,7 +388,10 @@ public enum LanguageModel: Sendable, CustomStringConvertible, Hashable {
         }
 
         public var contextLength: Int {
-            204_800
+            switch self {
+            case .m3: 1_000_000
+            case .m27, .m27Highspeed: 204_800
+            }
         }
     }
 
@@ -1519,6 +1526,15 @@ extension LanguageModel {
         // MARK: MiniMax models
 
         if
+            dashed.contains("minimax-cn-m3") ||
+            dotted.contains("minimax-cn-m-3") ||
+            compact.contains("minimaxcnm3") ||
+            compact.contains("minimaxim3")
+        {
+            return .minimaxCN(.m3)
+        }
+
+        if
             dashed.contains("minimax-cn-m2.7-highspeed") ||
             dotted.contains("minimax-cn-m2-7-highspeed") ||
             compact.contains("minimaxcnm27highspeed") ||
@@ -1557,6 +1573,16 @@ extension LanguageModel {
             normalized == "minimax"
         {
             return .minimax(.m27)
+        }
+
+        if
+            dashed.contains("minimax-m3") ||
+            dotted.contains("minimax-m-3") ||
+            compact.contains("minimaxm3") ||
+            dashed == "m3" ||
+            dotted == "m-3"
+        {
+            return .minimax(.m3)
         }
 
         // MARK: Grok models
@@ -1793,6 +1819,8 @@ extension LanguageModel {
             return .m27
         case "minimax-m2.7-highspeed", "minimax-m2-7-highspeed", "m2.7-highspeed", "m2-7-highspeed":
             return .m27Highspeed
+        case "minimax-m3", "m3":
+            return .m3
         default:
             return nil
         }
