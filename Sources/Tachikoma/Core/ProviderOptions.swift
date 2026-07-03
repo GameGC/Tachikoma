@@ -116,10 +116,12 @@ public struct OpenAIOptions: Sendable, Codable {
     }
 
     public enum ReasoningEffort: String, Sendable, Codable {
+        case none
         case minimal
         case low
         case medium
         case high
+        case xhigh
     }
 }
 
