@@ -62,7 +62,6 @@ let package = Package(
         commanderDependency,
         .package(url: "https://github.com/apple/swift-log.git", from: "1.6.4"),
         .package(url: "https://github.com/modelcontextprotocol/swift-sdk.git", from: "0.12.0"),
-        .package(url: "https://github.com/apple/swift-configuration", exact: "1.0.0"),
         .package(url: "https://github.com/apple/swift-algorithms", from: "1.2.1"),
         .package(url: "https://github.com/apple/swift-crypto.git", from: "4.2.0"),
     ],
@@ -72,7 +71,6 @@ let package = Package(
             name: "Tachikoma",
             dependencies: [
                 .product(name: "Logging", package: "swift-log"),
-                .product(name: "Configuration", package: "swift-configuration"),
                 .product(name: "Algorithms", package: "swift-algorithms"),
                 .product(name: "Crypto", package: "swift-crypto"),
             ],
